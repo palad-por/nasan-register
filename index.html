@@ -1096,7 +1096,7 @@
 
                     let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td><td class="px-4 py-3 text-center text-gray-500 font-mono">${timeStr}</td><td class="px-4 py-3 text-center font-bold ${isJoin?'text-green-600':'text-red-600'}">${d.status}</td><td class="px-4 py-3 text-center no-print">${photoBtn}</td>`;
                     
-                    if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500">${d.cid}</td>` + rowHtml;
+                    if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500 no-print">${d.cid}</td>` + rowHtml;
                     else rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td>` + rowHtml;
                     
                     if(tbody) tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">${rowHtml}</tr>`;
