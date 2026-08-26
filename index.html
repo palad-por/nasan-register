@@ -225,6 +225,7 @@
                 <button onclick="logoutAdmin()" class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition"><i class="fa-solid fa-power-off"></i> ออก</button>
             </div>
         </div>
+        
         <div class="flex mb-4 gap-1 md:gap-2 border-b-2 border-gray-300 pb-2 overflow-x-auto scrollbar-hide no-print">
             <button onclick="switchAdminTab('tab-create')" id="btn-tab-create" class="px-5 py-3 bg-red-600 text-white font-bold rounded-t-xl whitespace-nowrap shadow-inner transition"><i class="fa-solid fa-calendar-plus mr-1"></i> เพิ่มกิจกรรม</button>
             <button onclick="switchAdminTab('tab-report')" id="btn-tab-report" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition"><i class="fa-solid fa-table-list mr-1"></i> ข้อมูล</button>
@@ -289,6 +290,8 @@
                         <div class="flex gap-2 w-full md:w-auto">
                             <button onclick="loadDashboardData('ADMIN')" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold shadow-md flex-1 md:flex-none transition"><i class="fa-solid fa-search"></i> ค้นหา</button>
                             <button id="btn-toggle-vis" onclick="toggleVisibility()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-3 rounded-lg font-bold shadow-md flex-1 md:flex-none hidden whitespace-nowrap transition border border-yellow-600"><i class="fa-solid fa-eye-slash"></i> ซ่อน</button>
+                            <!-- ปุ่มลบกิจกรรม -->
+                            <button id="btn-delete-act" onclick="deleteActivity()" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-3 rounded-lg font-bold shadow-md flex-1 md:flex-none whitespace-nowrap transition"><i class="fa-solid fa-trash-can"></i> ลบ</button>
                         </div>
                     </div>
                 </div>
@@ -336,7 +339,7 @@
                             <thead class="text-xs text-white bg-red-700 uppercase">
                                 <tr>
                                     <th class="px-4 py-3">ลำดับ</th>
-                                    <th class="px-4 py-3">เลขบัตร</th>
+                                    <th class="px-4 py-3 no-print">เลขบัตร</th>
                                     <th class="px-4 py-3">ชื่อ-สกุล</th>
                                     <th class="px-4 py-3">ตำแหน่ง</th>
                                     <th class="px-4 py-3 text-center">ตำบล</th>
@@ -406,20 +409,21 @@
                             <option value="ผู้ช่วยผู้ใหญ่บ้านฝ่ายรักษาความสงบ">ผู้ช่วยผู้ใหญ่บ้านฝ่ายรักษาความสงบ</option>
                         </select>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-sm font-bold mb-1 text-gray-700">ตำบล <span class="text-red-500">*</span></label>
-                            <input type="text" id="add-person-tam" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
-                        </div>
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-bold mb-1 text-gray-700">หมู่ที่ <span class="text-red-500">*</span></label>
-                            <input type="number" id="add-person-moo" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
+                            <input type="text" id="add-person-moo" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="เช่น 1, 2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1 text-gray-700">ตำบล <span class="text-red-500">*</span></label>
+                            <input type="text" id="add-person-tambon" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="ไม่ต้องใส่คำว่า ต.">
                         </div>
                     </div>
                 </div>
-                <button onclick="saveNewPerson()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fa-solid fa-save"></i> บันทึกข้อมูลลงฐานข้อมูลหลัก</button>
+                <button onclick="saveNewPerson()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลบุคลากร</button>
             </div>
         </div>
+
     </div>
 
     <script>
@@ -443,7 +447,6 @@
             }
             const payload = { action: action, ...data };
             try {
-                // ส่งแบบ text/plain เพื่อป้องกันปัญหา CORS preflight ในบางเบราว์เซอร์
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -958,6 +961,76 @@
                 .catch(handleBackendError);
         }
 
+        // ฟังก์ชันใหม่สำหรับลบกิจกรรม
+        function deleteActivity() {
+            const selectEl = document.getElementById('admin-activity-select');
+            if(!selectEl) return;
+            const actId = selectEl.value;
+            if(!actId) return Alert.fire('แจ้งเตือน', 'กรุณาเลือกกิจกรรมที่ต้องการลบ', 'warning');
+            
+            const actName = selectEl.options[selectEl.selectedIndex].text;
+
+            Swal.fire({
+                title: 'ยืนยันการลบกิจกรรม?',
+                text: `คุณต้องการลบกิจกรรม "${actName}" ใช่หรือไม่? ข้อมูลกิจกรรมและการลงทะเบียนทั้งหมดจะถูกลบทิ้งอย่างถาวร`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ใช่, ลบทิ้งเลย!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading("กำลังลบกิจกรรม...");
+                    callServer('deleteActivity', { activityId: actId })
+                        .then(res => {
+                            hideLoading();
+                            if(res.success) {
+                                Alert.fire('สำเร็จ', res.message, 'success').then(() => {
+                                    loadActivityDropdown('ADMIN');
+                                });
+                            } else {
+                                Alert.fire('ผิดพลาด', res.message, 'error');
+                            }
+                        })
+                        .catch(handleBackendError);
+                }
+            });
+        }
+
+        // ฟังก์ชันใหม่สำหรับบันทึกข้อมูลบุคลากรหลัก
+        function saveNewPerson() {
+            const cid = document.getElementById('add-person-cid').value;
+            const name = document.getElementById('add-person-name').value;
+            const pos = document.getElementById('add-person-pos').value;
+            const moo = document.getElementById('add-person-moo').value;
+            const tambon = document.getElementById('add-person-tambon').value;
+
+            if(!cid || !name || !pos || !moo || !tambon) {
+                return Alert.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง', 'warning');
+            }
+            if(cid.length !== 13) {
+                return Alert.fire('ข้อมูลไม่ถูกต้อง', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
+            }
+
+            showLoading("กำลังบันทึกข้อมูล...");
+            callServer('addPerson', { data: { cid: cid, name: name, position: pos, moo: moo, tambon: tambon } })
+                .then(res => {
+                    hideLoading();
+                    if(res.success) {
+                        Alert.fire('สำเร็จ', res.message, 'success');
+                        document.getElementById('add-person-cid').value = '';
+                        document.getElementById('add-person-name').value = '';
+                        document.getElementById('add-person-pos').value = '';
+                        document.getElementById('add-person-moo').value = '';
+                        document.getElementById('add-person-tambon').value = '';
+                    } else {
+                        Alert.fire('ผิดพลาด', res.message, 'error');
+                    }
+                })
+                .catch(handleBackendError);
+        }
+
         function processImportData() {
             const textEl = document.getElementById('import-data-text');
             if(!textEl) return;
@@ -1136,7 +1209,7 @@
 
                     let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td><td class="px-4 py-3 text-center text-gray-500 font-mono">${timeStr}</td><td class="px-4 py-3 text-center font-bold ${isJoin?'text-green-600':'text-red-600'}">${d.status}</td><td class="px-4 py-3 text-center no-print">${photoBtn}</td>`;
                     
-                    if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500">${d.cid}</td>` + rowHtml;
+                    if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500 no-print">${d.cid}</td>` + rowHtml;
                     else rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td>` + rowHtml;
                     
                     if(tbody) tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">${rowHtml}</tr>`;
@@ -1199,40 +1272,6 @@
                         .catch(handleBackendError);
                 } 
             });
-        }
-
-        function saveNewPerson() {
-            const cidEl = document.getElementById('add-person-cid');
-            const nameEl = document.getElementById('add-person-name');
-            const posEl = document.getElementById('add-person-pos');
-            const tamEl = document.getElementById('add-person-tam');
-            const mooEl = document.getElementById('add-person-moo');
-
-            if(!cidEl || !nameEl || !posEl || !tamEl || !mooEl) return;
-
-            const cid = cidEl.value.trim();
-            const name = nameEl.value.trim();
-            const pos = posEl.value.trim();
-            const tam = tamEl.value.trim();
-            const moo = mooEl.value.trim();
-
-            if(cid.length !== 13) return Alert.fire('ข้อมูลไม่ครบ', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
-            if(!name || !pos || !tam || !moo) return Alert.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่อง', 'warning');
-
-            const data = { cid: cid, name: name, position: pos, tambon: tam, moo: moo };
-
-            showLoading("กำลังบันทึกข้อมูล...");
-            callServer('addPerson', { data: data })
-                .then(res => {
-                    hideLoading();
-                    if(res.success) {
-                        Alert.fire('สำเร็จ', res.message, 'success');
-                        cidEl.value = ''; nameEl.value = ''; posEl.value = ''; tamEl.value = ''; mooEl.value = '';
-                    } else {
-                        Alert.fire('ผิดพลาด', res.message, 'error');
-                    }
-                })
-                .catch(handleBackendError);
         }
 
         function exportToExcel() {
