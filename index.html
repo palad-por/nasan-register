@@ -230,6 +230,7 @@
             <button onclick="switchAdminTab('tab-report')" id="btn-tab-report" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition"><i class="fa-solid fa-table-list mr-1"></i> ข้อมูล</button>
             <button onclick="switchAdminTab('tab-manage-custom')" id="btn-tab-manage-custom" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition"><i class="fa-solid fa-user-plus mr-1"></i> เป้าหมายเสริม</button>
             <button onclick="switchAdminTab('tab-manage-admin')" id="btn-tab-manage-admin" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition hidden"><i class="fa-solid fa-users-gear mr-1"></i> แอดมิน</button>
+            <button onclick="switchAdminTab('tab-add-person')" id="btn-tab-add-person" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition"><i class="fa-solid fa-user-tie mr-1"></i> เพิ่มบุคลากรหลัก</button>
         </div>
 
         <div id="tab-create" class="glass-card p-5 md:p-8 border-red-100 shadow-md no-print">
@@ -335,7 +336,7 @@
                             <thead class="text-xs text-white bg-red-700 uppercase">
                                 <tr>
                                     <th class="px-4 py-3">ลำดับ</th>
-                                    <th class="px-4 py-3 no-print">เลขบัตร</th>
+                                    <th class="px-4 py-3">เลขบัตร</th>
                                     <th class="px-4 py-3">ชื่อ-สกุล</th>
                                     <th class="px-4 py-3">ตำแหน่ง</th>
                                     <th class="px-4 py-3 text-center">ตำบล</th>
@@ -378,6 +379,45 @@
                         <tbody id="admin-list-tbody" class="bg-white divide-y"></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <div id="tab-add-person" class="hidden no-print">
+            <div class="glass-card p-5 shadow-md border-t-4 border-green-500">
+                <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-user-tie text-green-600"></i> เพิ่มบุคลากรใหม่ (ฐานข้อมูลหลัก)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-1 text-gray-700">เลขบัตรประชาชน (13 หลัก) <span class="text-red-500">*</span></label>
+                        <input type="text" id="add-person-cid" maxlength="13" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none font-mono" oninput="formatCID(this)">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1 text-gray-700">ชื่อ-สกุล <span class="text-red-500">*</span></label>
+                        <input type="text" id="add-person-name" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1 text-gray-700">ตำแหน่ง <span class="text-red-500">*</span></label>
+                        <select id="add-person-pos" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none bg-white">
+                            <option value="">-- เลือกตำแหน่ง --</option>
+                            <option value="กำนัน">กำนัน</option>
+                            <option value="ผู้ใหญ่บ้าน">ผู้ใหญ่บ้าน</option>
+                            <option value="สารวัตรกำนัน">สารวัตรกำนัน</option>
+                            <option value="แพทย์ประจำตำบล">แพทย์ประจำตำบล</option>
+                            <option value="ผู้ช่วยผู้ใหญ่บ้านฝ่ายปกครอง">ผู้ช่วยผู้ใหญ่บ้านฝ่ายปกครอง</option>
+                            <option value="ผู้ช่วยผู้ใหญ่บ้านฝ่ายรักษาความสงบ">ผู้ช่วยผู้ใหญ่บ้านฝ่ายรักษาความสงบ</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-bold mb-1 text-gray-700">ตำบล <span class="text-red-500">*</span></label>
+                            <input type="text" id="add-person-tam" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1 text-gray-700">หมู่ที่ <span class="text-red-500">*</span></label>
+                            <input type="number" id="add-person-moo" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+                <button onclick="saveNewPerson()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fa-solid fa-save"></i> บันทึกข้อมูลลงฐานข้อมูลหลัก</button>
             </div>
         </div>
     </div>
@@ -799,10 +839,10 @@
         function logoutAdmin() { adminUser = null; switchView('view-home'); }
 
         function switchAdminTab(tid) {
-            ['tab-create', 'tab-report', 'tab-manage-custom', 'tab-manage-admin'].forEach(t => { 
+            ['tab-create', 'tab-report', 'tab-manage-custom', 'tab-manage-admin', 'tab-add-person'].forEach(t => { 
                 const el = document.getElementById(t); if(el) el.classList.add('hidden'); 
             });
-            ['btn-tab-create', 'btn-tab-report', 'btn-tab-manage-custom', 'btn-tab-manage-admin'].forEach(b => { 
+            ['btn-tab-create', 'btn-tab-report', 'btn-tab-manage-custom', 'btn-tab-manage-admin', 'btn-tab-add-person'].forEach(b => { 
                 const el = document.getElementById(b); 
                 if(el) {
                     el.classList.remove('bg-red-600', 'text-white', 'shadow-inner');
@@ -1096,7 +1136,7 @@
 
                     let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td><td class="px-4 py-3 text-center text-gray-500 font-mono">${timeStr}</td><td class="px-4 py-3 text-center font-bold ${isJoin?'text-green-600':'text-red-600'}">${d.status}</td><td class="px-4 py-3 text-center no-print">${photoBtn}</td>`;
                     
-                    if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500 no-print">${d.cid}</td>` + rowHtml;
+                    if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500">${d.cid}</td>` + rowHtml;
                     else rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td>` + rowHtml;
                     
                     if(tbody) tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">${rowHtml}</tr>`;
@@ -1159,6 +1199,40 @@
                         .catch(handleBackendError);
                 } 
             });
+        }
+
+        function saveNewPerson() {
+            const cidEl = document.getElementById('add-person-cid');
+            const nameEl = document.getElementById('add-person-name');
+            const posEl = document.getElementById('add-person-pos');
+            const tamEl = document.getElementById('add-person-tam');
+            const mooEl = document.getElementById('add-person-moo');
+
+            if(!cidEl || !nameEl || !posEl || !tamEl || !mooEl) return;
+
+            const cid = cidEl.value.trim();
+            const name = nameEl.value.trim();
+            const pos = posEl.value.trim();
+            const tam = tamEl.value.trim();
+            const moo = mooEl.value.trim();
+
+            if(cid.length !== 13) return Alert.fire('ข้อมูลไม่ครบ', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
+            if(!name || !pos || !tam || !moo) return Alert.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่อง', 'warning');
+
+            const data = { cid: cid, name: name, position: pos, tambon: tam, moo: moo };
+
+            showLoading("กำลังบันทึกข้อมูล...");
+            callServer('addPerson', { data: data })
+                .then(res => {
+                    hideLoading();
+                    if(res.success) {
+                        Alert.fire('สำเร็จ', res.message, 'success');
+                        cidEl.value = ''; nameEl.value = ''; posEl.value = ''; tamEl.value = ''; mooEl.value = '';
+                    } else {
+                        Alert.fire('ผิดพลาด', res.message, 'error');
+                    }
+                })
+                .catch(handleBackendError);
         }
 
         function exportToExcel() {
