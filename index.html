@@ -34,7 +34,6 @@
 </head>
 <body class="text-gray-800" onload="initApp()">
 
-    <!-- แจ้งเตือนแอป LINE -->
     <div id="line-warning" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 z-[100000] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col">
             <div class="bg-red-500 p-6 flex flex-col items-center justify-center text-center">
@@ -87,7 +86,7 @@
                     <label class="block text-sm font-semibold mb-1 text-gray-700">เลขประจำตัวประชาชน (13 หลัก)</label>
                     <input type="text" id="cid-input" inputmode="numeric" maxlength="13" class="w-full p-4 border-2 border-green-300 rounded-xl focus:border-green-600 outline-none text-2xl tracking-widest text-center shadow-inner font-bold text-gray-800" placeholder="X XXXX XXXXX XX X" oninput="formatCID(this)">
                     <button onclick="verifyUser()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 text-xl">
-                        ลงทะเบียน
+                        ตรวจสอบเพื่อลงทะเบียน
                     </button>
                 </div>
             </div>
@@ -111,6 +110,9 @@
                 <p class="mb-1"><strong>ชื่อ:</strong> <span id="user-name-display" class="text-blue-800 font-bold text-lg"></span></p>
                 <p><strong>ตำแหน่ง:</strong> <span id="user-pos-display"></span></p>
                 <p><strong>พื้นที่:</strong> ต.<span id="user-tam-display"></span> ม.<span id="user-moo-display"></span></p>
+                <div class="mt-2 bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-2 rounded font-bold text-center">
+                    <span id="user-phase-note">สถานะ: ตรวจสอบพิกัดเพื่อถ่ายภาพ</span>
+                </div>
             </div>
             <div id="gps-status" class="mb-4 p-4 rounded-xl text-sm font-semibold text-gray-700 bg-gray-50 border-2 border-gray-200 text-center shadow-sm">
                 <p class="mb-1 text-red-600"><i class="fa-solid fa-location-crosshairs text-xl mb-1"></i></p>
@@ -186,17 +188,8 @@
             <div class="text-right mb-3"><span id="pub-summary-text" class="text-sm font-bold text-blue-800 bg-blue-100 px-4 py-2 rounded-full border border-blue-300 shadow-sm"></span></div>
             <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
                 <table class="w-full text-sm text-left whitespace-nowrap">
-                    <thead class="text-xs text-white bg-blue-700 uppercase">
-                        <tr>
-                            <th class="px-4 py-3">ลำดับ</th>
-                            <th class="px-4 py-3">ชื่อ-สกุล</th>
-                            <th class="px-4 py-3">ตำแหน่ง</th>
-                            <th class="px-4 py-3 text-center">ตำบล</th>
-                            <th class="px-4 py-3 text-center">หมู่</th>
-                            <th class="px-4 py-3 text-center">เวลาเข้าร่วม</th>
-                            <th class="px-4 py-3 text-center">สถานะ</th>
-                            <th class="px-4 py-3 text-center">หลักฐาน</th>
-                        </tr>
+                    <thead class="text-xs text-white bg-blue-700 uppercase" id="pub-report-thead">
+                        <!-- Dynamic Header -->
                     </thead>
                     <tbody id="pub-report-tbody" class="bg-white divide-y"></tbody>
                 </table>
@@ -231,9 +224,10 @@
             <button onclick="switchAdminTab('tab-report')" id="btn-tab-report" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition"><i class="fa-solid fa-table-list mr-1"></i> ข้อมูล</button>
             <button onclick="switchAdminTab('tab-manage-custom')" id="btn-tab-manage-custom" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition"><i class="fa-solid fa-user-plus mr-1"></i> เป้าหมายเสริม</button>
             <button onclick="switchAdminTab('tab-manage-admin')" id="btn-tab-manage-admin" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition hidden"><i class="fa-solid fa-users-gear mr-1"></i> แอดมิน</button>
-            <button onclick="switchAdminTab('tab-add-person')" id="btn-tab-add-person" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition"><i class="fa-solid fa-user-tie mr-1"></i> เพิ่มบุคลากรหลัก</button>
+            <button onclick="switchAdminTab('tab-add-person')" id="btn-tab-add-person" class="px-5 py-3 bg-gray-200 text-gray-700 hover:bg-gray-300 font-bold rounded-t-xl whitespace-nowrap transition"><i class="fa-solid fa-user-tie mr-1"></i> เพิ่ม/ลบบุคลากร</button>
         </div>
 
+        <!-- Tab Create Activity -->
         <div id="tab-create" class="glass-card p-5 md:p-8 border-red-100 shadow-md no-print">
             <div class="space-y-5">
                 <div><label class="block text-sm font-bold mb-2 text-gray-700">หัวข้อกิจกรรม <span class="text-red-500">*</span></label><input type="text" id="new-act-name" class="w-full p-3 border-2 rounded-lg outline-none focus:border-red-400"></div>
@@ -242,6 +236,17 @@
                     <div><label class="block text-sm font-bold mb-2 text-gray-700">เวลาจัดกิจกรรม <span class="text-red-500">*</span></label><input type="time" id="new-act-time" class="w-full p-3 border-2 rounded-lg outline-none focus:border-red-400"></div>
                 </div>
                 <div><label class="block text-sm font-bold mb-2 text-gray-700">สถานที่ <span class="text-red-500">*</span></label><input type="text" id="new-act-loc" class="w-full p-3 border-2 rounded-lg outline-none focus:border-red-400"></div>
+                
+                <!-- เลือกประเภทการลงเวลา (1 รอบ หรือ 2 รอบ) -->
+                <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200 shadow-sm">
+                    <label class="block text-base font-bold text-indigo-800 mb-3 border-b border-indigo-200 pb-2"><i class="fa-solid fa-list-check"></i> รูปแบบการลงเวลา</label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="new-req-checkout" class="w-5 h-5 text-indigo-600 rounded">
+                        <span class="font-bold text-indigo-900">เปิดให้ลงทะเบียน "เวลากลับ (Check-out)" ด้วย</span>
+                    </label>
+                    <p class="text-xs text-indigo-600 mt-2 ml-8">หากติ๊กเลือก ผู้เข้าร่วมจะต้องสแกนใบหน้า 2 รอบ (ขามา และ ขากลับ) จึงจะถือว่าเข้าร่วมสมบูรณ์</p>
+                </div>
+
                 <div class="bg-yellow-50 p-5 rounded-xl border border-yellow-300 shadow-sm">
                     <label class="block text-base font-bold text-yellow-800 mb-3 border-b border-yellow-200 pb-2"><i class="fa-solid fa-clock"></i> ห้วงเวลาลงทะเบียน</label>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -336,18 +341,8 @@
                     </div>
                     <div class="overflow-x-auto rounded-xl border border-gray-200">
                         <table class="w-full text-sm text-left whitespace-nowrap" id="report-table">
-                            <thead class="text-xs text-white bg-red-700 uppercase">
-                                <tr>
-                                    <th class="px-4 py-3">ลำดับ</th>
-                                    <th class="px-4 py-3 no-print">เลขบัตร</th>
-                                    <th class="px-4 py-3">ชื่อ-สกุล</th>
-                                    <th class="px-4 py-3">ตำแหน่ง</th>
-                                    <th class="px-4 py-3 text-center">ตำบล</th>
-                                    <th class="px-4 py-3 text-center">หมู่</th>
-                                    <th class="px-4 py-3 text-center">เวลาเข้าร่วม</th>
-                                    <th class="px-4 py-3 text-center">สถานะ</th>
-                                    <th class="px-4 py-3 text-center no-print">หลักฐาน</th>
-                                </tr>
+                            <thead class="text-xs text-white bg-red-700 uppercase" id="adm-report-thead">
+                                <!-- Dynamic Header -->
                             </thead>
                             <tbody id="adm-report-tbody" class="bg-white divide-y"></tbody>
                         </table>
@@ -385,9 +380,10 @@
             </div>
         </div>
 
-        <div id="tab-add-person" class="hidden no-print">
+        <!-- แท็บเพิ่ม/ลบบุคลากร -->
+        <div id="tab-add-person" class="hidden no-print space-y-6">
             <div class="glass-card p-5 shadow-md border-t-4 border-green-500">
-                <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-user-tie text-green-600"></i> เพิ่มบุคลากรใหม่ (ฐานข้อมูลหลัก)</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-user-plus text-green-600"></i> เพิ่มบุคลากรใหม่ (เข้าฐานข้อมูลหลัก)</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-bold mb-1 text-gray-700">เลขบัตรประชาชน (13 หลัก) <span class="text-red-500">*</span></label>
@@ -422,6 +418,18 @@
                 </div>
                 <button onclick="saveNewPerson()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลบุคลากร</button>
             </div>
+            
+            <div class="glass-card p-5 shadow-md border-t-4 border-red-500">
+                <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-user-minus text-red-600"></i> ลบบุคลากรออกจากระบบ</h2>
+                <div class="flex flex-col md:flex-row gap-3 items-end">
+                    <div class="w-full md:flex-1">
+                        <label class="block text-sm font-bold mb-1 text-gray-700">เลขบัตรประชาชนที่ต้องการลบ (13 หลัก)</label>
+                        <input type="text" id="del-person-cid" maxlength="13" class="w-full p-3 border-2 border-red-200 rounded-lg focus:border-red-500 outline-none font-mono bg-red-50 text-red-800 font-bold" oninput="formatCID(this)" placeholder="X XXXX XXXXX XX X">
+                    </div>
+                    <button onclick="deletePersonData()" class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-lg shadow transition whitespace-nowrap"><i class="fa-solid fa-trash-can"></i> ลบข้อมูล</button>
+                </div>
+                <p class="text-xs text-red-500 mt-3">* การลบจะดึงรายชื่อนี้ออกจากฐานข้อมูลหลักและเป้าหมายเสริมทันที</p>
+            </div>
         </div>
 
     </div>
@@ -439,25 +447,38 @@
         const Alert = Swal.mixin({ customClass: { confirmButton: 'bg-green-600 text-white px-6 py-2 rounded-lg font-bold outline-none shadow-md' }, buttonsStyling: false });
         
         // -------------------------------------------------------------------------
-        // ฟังก์ชันสำหรับเรียก API (ใช้แทน google.script.run)
+        // ฟังก์ชันสำหรับเรียก API (อัปเดตระบบ Auto-Retry แก้ปัญหาโหลดช้า/เน็ตหลุด)
         // -------------------------------------------------------------------------
-        async function callServer(action, data = {}) {
+        async function callServer(action, data = {}, maxRetries = 3) {
             if (API_URL === "YOUR_WEB_APP_URL_HERE") {
                 throw new Error("กรุณานำ Web App URL จาก Google Apps Script มาใส่ในตัวแปร API_URL ที่บรรทัด 312 ในไฟล์ Index.html ก่อนใช้งานครับ");
             }
+            
             const payload = { action: action, ...data };
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (!response.ok) throw new Error('เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย');
-                return await response.json();
-            } catch (error) {
-                console.error("API Error:", error);
-                throw error;
+            
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    if (i > 0) {
+                        const loaderText = document.getElementById('loading-text');
+                        if (loaderText) loaderText.innerText = `กำลังพยายามเชื่อมต่อใหม่ (${i}/${maxRetries})...`;
+                    }
+
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) throw new Error('Network error');
+                    return await response.json(); 
+                    
+                } catch (error) {
+                    console.warn(`การเชื่อมต่อขัดข้อง ล้มเหลวครั้งที่ ${i + 1} กำลังพยายามใหม่...`, error);
+                    if (i === maxRetries - 1) {
+                        throw new Error("เซิร์ฟเวอร์ตอบสนองช้ากว่าปกติ (Network Error) โปรดตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง");
+                    }
+                    await new Promise(res => setTimeout(res, 1000 * (i + 1)));
+                }
             }
         }
 
@@ -520,7 +541,7 @@
             const overlayEl = document.getElementById('loading-overlay');
             if(overlayEl) overlayEl.classList.add('hidden'); 
         }
-        
+
         function switchView(vid) {
             ['view-home', 'view-camera', 'view-admin-login', 'view-admin-dashboard', 'view-public-dashboard'].forEach(id => {
                 const el = document.getElementById(id);
@@ -613,13 +634,23 @@
             callServer('verifyUser', { cid: cid, actId: currentActivity.id })
                 .then(res => {
                     hideLoading();
-                    if(!res.success) return Alert.fire('ไม่ได้รับสิทธิ์', res.message, 'error');
+                    if(!res.success) return Alert.fire('ไม่สามารถลงทะเบียนได้', res.message, 'error');
                     
                     currentUser = res;
                     const nameEl = document.getElementById('user-name-display'); if(nameEl) nameEl.innerText = res.name;
                     const posEl = document.getElementById('user-pos-display'); if(posEl) posEl.innerText = res.position;
                     const tamEl = document.getElementById('user-tam-display'); if(tamEl) tamEl.innerText = res.tambon;
                     const mooEl = document.getElementById('user-moo-display'); if(mooEl) mooEl.innerText = res.moo;
+                    
+                    const noteEl = document.getElementById('user-phase-note');
+                    if(noteEl) {
+                        noteEl.innerText = res.statusNote || "สถานะ: พร้อมถ่ายภาพ";
+                        if(res.phase === "CHECKOUT") {
+                            noteEl.parentElement.className = "mt-2 bg-blue-100 border border-blue-300 text-blue-800 px-3 py-2 rounded font-bold text-center";
+                        } else {
+                            noteEl.parentElement.className = "mt-2 bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-2 rounded font-bold text-center";
+                        }
+                    }
                     
                     switchView('view-camera');
                 })
@@ -737,8 +768,9 @@
                         ctx.fillStyle = "white"; ctx.font = "30px 'Noto Sans Thai', sans-serif";
                         ctx.fillText(`พื้นที่: ม.${currentUser.moo} ต.${currentUser.tambon} อ.บ้านนาสาร จ.สุราษฎร์ธานี`, 30, h - 65);
 
+                        let phaseTxt = currentUser.phase === "CHECKOUT" ? "[ลงเวลากลับ]" : "[ลงเวลามา]";
                         ctx.font = "bold 26px 'Noto Sans Thai', sans-serif";
-                        ctx.fillText(`📅 วันที่: ${new Date().toLocaleString('th-TH')}   |   📍 GPS: ${userLat.toFixed(5)}, ${userLng.toFixed(5)}`, 30, h - 20);
+                        ctx.fillText(`${phaseTxt} 📅 วันที่: ${new Date().toLocaleString('th-TH')}  📍 GPS: ${userLat.toFixed(5)}, ${userLng.toFixed(5)}`, 30, h - 20);
 
                         finalPhotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
                         
@@ -774,14 +806,15 @@
             const payload = {
                 activityId: currentActivity.id, activityName: currentActivity.name, cid: cidEl.value,
                 name: currentUser.name, position: currentUser.position, tambon: currentUser.tambon, moo: currentUser.moo,
-                lat: userLat, lng: userLng, photoBase64: finalPhotoBase64
+                lat: userLat, lng: userLng, photoBase64: finalPhotoBase64,
+                phase: currentUser.phase, requireCheckout: currentActivity.requireCheckout
             };
             
             callServer('submitRegistration', { payload: payload })
                 .then(res => {
                     hideLoading();
                     if(res.success){
-                        Alert.fire('ลงทะเบียนสำเร็จ!', res.message, 'success').then(()=> {
+                        Alert.fire('สำเร็จ!', res.message, 'success').then(()=> {
                             const inputCid = document.getElementById('cid-input'); if(inputCid) inputCid.value = ""; 
                             
                             const btnCamWrapper = document.getElementById('btn-open-camera-wrapper'); if(btnCamWrapper) btnCamWrapper.classList.add('hidden');
@@ -795,6 +828,7 @@
                             
                             const prevCon = document.getElementById('preview-container'); if(prevCon) prevCon.classList.add('hidden');
                             finalPhotoBase64 = null; 
+                            currentUser = null;
                             
                             openPublicDashboard(currentActivity.id);
                         });
@@ -920,12 +954,14 @@
             const latEl = document.getElementById('new-act-lat');
             const lngEl = document.getElementById('new-act-lng');
             const radEl = document.getElementById('new-act-radius');
+            const reqCheckEl = document.getElementById('new-req-checkout');
 
             if(!nameEl || !startEl || !endEl || !latEl || !lngEl) return;
 
             const regStartTs = new Date(startEl.value).getTime(); 
             const regEndTs = new Date(endEl.value).getTime();
             const radius = radEl ? radEl.value : 300;
+            const reqCheck = reqCheckEl ? reqCheckEl.checked : false;
 
             if(!nameEl.value || isNaN(regStartTs) || isNaN(regEndTs) || !latEl.value) {
                 return Alert.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ โดยเฉพาะห้วงเวลา', 'warning');
@@ -945,7 +981,8 @@
                 actLocation: locEl ? locEl.value : '', regStartTs: regStartTs, regEndTs: regEndTs, 
                 lat: latEl.value, lng: lngEl.value, radius: radius, 
                 createdBy: adminUser ? adminUser.name : 'Admin', 
-                allowedPositions: allowedPositions, allowedTambons: allowedTambons, allowedMoos: allowedMoos
+                allowedPositions: allowedPositions, allowedTambons: allowedTambons, allowedMoos: allowedMoos,
+                requireCheckout: reqCheck
             };
             
             showLoading("กำลังสร้าง...");
@@ -961,7 +998,6 @@
                 .catch(handleBackendError);
         }
 
-        // ฟังก์ชันใหม่สำหรับลบกิจกรรม
         function deleteActivity() {
             const selectEl = document.getElementById('admin-activity-select');
             if(!selectEl) return;
@@ -998,7 +1034,6 @@
             });
         }
 
-        // ฟังก์ชันใหม่สำหรับบันทึกข้อมูลบุคลากรหลัก
         function saveNewPerson() {
             const cid = document.getElementById('add-person-cid').value;
             const name = document.getElementById('add-person-name').value;
@@ -1029,6 +1064,37 @@
                     }
                 })
                 .catch(handleBackendError);
+        }
+
+        function deletePersonData() {
+            const cid = document.getElementById('del-person-cid').value;
+            if(cid.length !== 13) return Alert.fire('ข้อมูลไม่ถูกต้อง', 'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', 'warning');
+
+            Swal.fire({
+                title: 'ยืนยันการลบบุคลากร?',
+                text: "การลบรายชื่อนี้ จะลบออกจากทั้งฐานข้อมูลหลักและเป้าหมายเสริมทันที ไม่สามารถกู้คืนได้",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ใช่, ลบเลย!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading("กำลังลบข้อมูล...");
+                    callServer('deletePerson', { cid: cid })
+                        .then(res => {
+                            hideLoading();
+                            if(res.success) {
+                                Alert.fire('สำเร็จ', res.message, 'success');
+                                document.getElementById('del-person-cid').value = '';
+                            } else {
+                                Alert.fire('ผิดพลาด', res.message, 'error');
+                            }
+                        })
+                        .catch(handleBackendError);
+                }
+            });
         }
 
         function processImportData() {
@@ -1190,24 +1256,79 @@
 
                 const filtered = dashboardDataRaw.filter(d => { 
                     const matchSearch = (d.name.toLowerCase().includes(searchTerm) || (mode==='ADMIN' && d.cid.includes(searchTerm))); 
-                    return matchSearch && (!t || d.tambon === t) && (!m || d.moo === m) && (!p || d.position === p) && (!s || d.status === s); 
+                    return matchSearch && (!t || d.tambon === t) && (!m || d.moo === m) && (!p || d.position === p) && (!s || (s==='เข้าร่วม' && (d.status==='เข้าร่วม' || d.status==='รอลงเวลากลับ' || d.status==='เข้าร่วมสมบูรณ์')) || (s==='ไม่เข้าร่วม' && d.status==='ไม่เข้าร่วม')); 
                 });
                 
+                // ปรับแต่ง Header ตาม RequireCheckout
+                const thead = document.getElementById(`${prefix}-report-thead`);
+                if (thead) {
+                    let headerHtml = `<tr>
+                        <th class="px-4 py-3">ลำดับ</th>
+                        ${mode === 'ADMIN' ? '<th class="px-4 py-3 no-print">เลขบัตร</th>' : ''}
+                        <th class="px-4 py-3">ชื่อ-สกุล</th>
+                        <th class="px-4 py-3">ตำแหน่ง</th>
+                        <th class="px-4 py-3 text-center">ตำบล</th>
+                        <th class="px-4 py-3 text-center">หมู่</th>`;
+                    
+                    if (dashboardActivityInfo.requireCheckout) {
+                        headerHtml += `
+                        <th class="px-4 py-3 text-center">เวลามา</th>
+                        <th class="px-4 py-3 text-center">เวลากลับ</th>
+                        <th class="px-4 py-3 text-center">สถานะ</th>
+                        <th class="px-4 py-3 text-center no-print">รูป (มา)</th>
+                        <th class="px-4 py-3 text-center no-print">รูป (กลับ)</th>`;
+                    } else {
+                        headerHtml += `
+                        <th class="px-4 py-3 text-center">เวลาเข้าร่วม</th>
+                        <th class="px-4 py-3 text-center">สถานะ</th>
+                        <th class="px-4 py-3 text-center no-print">หลักฐาน</th>`;
+                    }
+                    headerHtml += `</tr>`;
+                    thead.innerHTML = headerHtml;
+                }
+
                 const tbody = document.getElementById(`${prefix}-report-tbody`); if(tbody) tbody.innerHTML = ''; 
                 let joinCount = 0;
                 
                 filtered.forEach((d, index) => {
-                    if(d.status === 'เข้าร่วม') joinCount++; 
-                    const isJoin = d.status === 'เข้าร่วม';
-                    let photoBtn = isJoin && d.photoUrl ? `<button onclick="viewPhoto('${d.photoUrl}')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded text-xs font-bold border border-blue-300 no-print"><i class="fa-solid fa-image"></i> รูป</button>` : '-';
+                    const isJoinedAny = (d.status === 'เข้าร่วม' || d.status === 'รอลงเวลากลับ' || d.status === 'เข้าร่วมสมบูรณ์');
+                    if(isJoinedAny) joinCount++; 
                     
-                    let timeStr = '-';
-                    if (isJoin && d.timestampRaw) {
+                    let timeInStr = '-', timeOutStr = '-';
+                    if (isJoinedAny && d.timestampRaw) {
                         const parts = d.timestampRaw.split(' ');
-                        if(parts.length > 1) timeStr = parts[1]; 
+                        if(parts.length > 1) timeInStr = parts[1]; 
+                    }
+                    if (d.outTimestampRaw) {
+                        const parts = d.outTimestampRaw.split(' ');
+                        if(parts.length > 1) timeOutStr = parts[1];
                     }
 
-                    let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td><td class="px-4 py-3 text-center text-gray-500 font-mono">${timeStr}</td><td class="px-4 py-3 text-center font-bold ${isJoin?'text-green-600':'text-red-600'}">${d.status}</td><td class="px-4 py-3 text-center no-print">${photoBtn}</td>`;
+                    let statClass = 'text-red-600';
+                    if (d.status === 'เข้าร่วม' || d.status === 'เข้าร่วมสมบูรณ์') statClass = 'text-green-600';
+                    else if (d.status === 'รอลงเวลากลับ') statClass = 'text-yellow-600';
+
+                    let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td>`;
+                    
+                    if (dashboardActivityInfo.requireCheckout) {
+                        let photoInBtn = d.photoUrl ? `<button onclick="viewPhoto('${d.photoUrl}')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs font-bold border border-blue-300 no-print"><i class="fa-solid fa-image"></i></button>` : '-';
+                        let photoOutBtn = d.outPhotoUrl ? `<button onclick="viewPhoto('${d.outPhotoUrl}')" class="bg-green-100 hover:bg-green-200 text-green-800 px-2 py-1 rounded text-xs font-bold border border-green-300 no-print"><i class="fa-solid fa-image"></i></button>` : '-';
+                        
+                        rowHtml += `
+                            <td class="px-4 py-3 text-center text-gray-500 font-mono">${timeInStr}</td>
+                            <td class="px-4 py-3 text-center text-gray-500 font-mono">${timeOutStr}</td>
+                            <td class="px-4 py-3 text-center font-bold ${statClass}">${d.status}</td>
+                            <td class="px-4 py-3 text-center no-print">${photoInBtn}</td>
+                            <td class="px-4 py-3 text-center no-print">${photoOutBtn}</td>
+                        `;
+                    } else {
+                        let photoBtn = d.photoUrl ? `<button onclick="viewPhoto('${d.photoUrl}')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded text-xs font-bold border border-blue-300 no-print"><i class="fa-solid fa-image"></i> รูป</button>` : '-';
+                        rowHtml += `
+                            <td class="px-4 py-3 text-center text-gray-500 font-mono">${timeInStr}</td>
+                            <td class="px-4 py-3 text-center font-bold ${statClass}">${d.status}</td>
+                            <td class="px-4 py-3 text-center no-print">${photoBtn}</td>
+                        `;
+                    }
                     
                     if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500 no-print">${d.cid}</td>` + rowHtml;
                     else rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td>` + rowHtml;
@@ -1281,10 +1402,17 @@
             const actLoc = dashboardActivityInfo.loc || '-';
             const regTime = `${formatCustomTime(dashboardActivityInfo.regStart)} ถึง ${formatCustomTime(dashboardActivityInfo.regEnd)}`;
 
+            let headers = [];
+            if(dashboardActivityInfo.requireCheckout) {
+                headers = ["ลำดับ", "เลขประจำตัวประชาชน", "ชื่อ-สกุล", "ตำแหน่ง", "หมู่ที่", "ตำบล", "เวลามา", "เวลากลับ", "สถานะ", "รูปลงเวลามา", "รูปลงเวลากลับ"];
+            } else {
+                headers = ["ลำดับ", "เลขประจำตัวประชาชน", "ชื่อ-สกุล", "ตำแหน่ง", "หมู่ที่", "ตำบล", "เวลาเข้าร่วม", "สถานะ", "ลิงก์รูปภาพ"];
+            }
+
             const dataToExport = [ 
                 ["ระบบลงทะเบียนเข้าร่วมกิจกรรม อำเภอบ้านนาสาร"], [`กิจกรรม: ${actName}`], [`วันที่จัด: ${actDate} เวลา ${actTime} น.`], 
                 [`สถานที่: ${actLoc}`], [`ห้วงเวลาลงทะเบียน: ${regTime}`], [""], 
-                ["ลำดับ", "เลขประจำตัวประชาชน", "ชื่อ-สกุล", "ตำแหน่ง", "หมู่ที่", "ตำบล", "เวลาเข้าร่วม", "สถานะการเข้าร่วม", "ลิงก์รูปภาพ"] 
+                headers
             ];
             
             const tbody = document.getElementById('adm-report-tbody'); 
@@ -1292,13 +1420,31 @@
                 const rows = tbody.querySelectorAll('tr');
                 rows.forEach(tr => {
                     const cols = tr.querySelectorAll('td'); 
-                    let link = ''; const btn = cols[8] ? cols[8].querySelector('button') : null;
-                    if(btn) { const match = btn.getAttribute('onclick').match(/'([^']+)'/); if(match) link = match[1]; }
-                    dataToExport.push([
-                        cols[0] ? cols[0].innerText : '', cols[1] ? cols[1].innerText : '', cols[2] ? cols[2].innerText : '', 
-                        cols[3] ? cols[3].innerText : '', cols[5] ? cols[5].innerText : '', cols[4] ? cols[4].innerText : '', 
-                        cols[6] ? cols[6].innerText : '', cols[7] ? cols[7].innerText : '', link
-                    ]);
+                    let rowData = [];
+                    if(dashboardActivityInfo.requireCheckout) {
+                        let linkIn = '', linkOut = '';
+                        const btnIn = cols[9] ? cols[9].querySelector('button') : null;
+                        const btnOut = cols[10] ? cols[10].querySelector('button') : null;
+                        if(btnIn) { const m = btnIn.getAttribute('onclick').match(/'([^']+)'/); if(m) linkIn = m[1]; }
+                        if(btnOut) { const m = btnOut.getAttribute('onclick').match(/'([^']+)'/); if(m) linkOut = m[1]; }
+                        
+                        rowData = [
+                            cols[0] ? cols[0].innerText : '', cols[1] ? cols[1].innerText : '', cols[2] ? cols[2].innerText : '', 
+                            cols[3] ? cols[3].innerText : '', cols[5] ? cols[5].innerText : '', cols[4] ? cols[4].innerText : '', 
+                            cols[6] ? cols[6].innerText : '', cols[7] ? cols[7].innerText : '', cols[8] ? cols[8].innerText : '',
+                            linkIn, linkOut
+                        ];
+                    } else {
+                        let link = ''; const btn = cols[8] ? cols[8].querySelector('button') : null;
+                        if(btn) { const match = btn.getAttribute('onclick').match(/'([^']+)'/); if(match) link = match[1]; }
+                        
+                        rowData = [
+                            cols[0] ? cols[0].innerText : '', cols[1] ? cols[1].innerText : '', cols[2] ? cols[2].innerText : '', 
+                            cols[3] ? cols[3].innerText : '', cols[5] ? cols[5].innerText : '', cols[4] ? cols[4].innerText : '', 
+                            cols[6] ? cols[6].innerText : '', cols[7] ? cols[7].innerText : '', link
+                        ];
+                    }
+                    dataToExport.push(rowData);
                 });
             }
             const ws = XLSX.utils.aoa_to_sheet(dataToExport); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Report"); XLSX.writeFile(wb, `รายงาน_${actName}.xlsx`);
