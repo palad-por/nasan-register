@@ -86,8 +86,8 @@
                 <div id="reg-form" class="hidden">
                     <label class="block text-sm font-semibold mb-1 text-gray-700">เลขประจำตัวประชาชน (13 หลัก)</label>
                     <input type="text" id="cid-input" inputmode="numeric" maxlength="13" class="w-full p-4 border-2 border-green-300 rounded-xl focus:border-green-600 outline-none text-2xl tracking-widest text-center shadow-inner font-bold text-gray-800" placeholder="X XXXX XXXXX XX X" oninput="formatCID(this)">
-                    <button onclick="verifyUser()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 text-xl">
-                        ตรวจสอบเพื่อลงทะเบียน
+                    <button id="btn-verify-user" onclick="verifyUser()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 text-xl">
+                        ลงทะเบียน
                     </button>
                 </div>
             </div>
@@ -626,24 +626,59 @@
                 const now = Date.now();
                 const panel = document.getElementById('status-panel');
                 const form = document.getElementById('reg-form');
+                const btnVerify = document.getElementById('btn-verify-user');
                 if(!panel || !form) return;
 
-                if (now < currentActivity.regStart) {
-                    let diff = currentActivity.regStart - now;
+                const c = currentActivity;
+                let formVisible = false;
+                let btnText = "ลงทะเบียน";
+                let btnColor = "bg-green-600 hover:bg-green-700";
+
+                if (now < c.regStart) {
+                    let diff = c.regStart - now;
                     let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
                     panel.className = "text-center p-5 rounded-xl font-bold mb-5 bg-yellow-100 text-yellow-800 border-2 border-yellow-400 shadow-md";
-                    panel.innerHTML = `<i class="fa-solid fa-hourglass-half text-3xl mb-2 text-yellow-600"></i><br> <span class="text-sm">จะเปิดให้ลงทะเบียนในอีก</span><br><div class="flex justify-center gap-2 mt-3"><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(h).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(m).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(s).padStart(2,'0')}</div></div>`;
-                    form.classList.add('hidden');
-                } else if (now >= currentActivity.regStart && now <= currentActivity.regEnd) {
-                    let diff = currentActivity.regEnd - now;
+                    let titleStr = c.requireCheckout ? "จะเปิดให้ลงเวลา (ขามา) ในอีก" : "จะเปิดให้ลงทะเบียนในอีก";
+                    panel.innerHTML = `<i class="fa-solid fa-hourglass-half text-3xl mb-2 text-yellow-600"></i><br> <span class="text-sm">${titleStr}</span><br><div class="flex justify-center gap-2 mt-3"><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(h).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(m).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(s).padStart(2,'0')}</div></div>`;
+                    formVisible = false;
+                } else if (now >= c.regStart && now <= c.regEnd) {
+                    let diff = c.regEnd - now;
                     let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
                     panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-green-100 text-green-800 border-2 border-green-500 shadow-md flex flex-col justify-center items-center gap-2";
-                    panel.innerHTML = `<span class="text-xl text-green-700"><i class="fa-solid fa-door-open animate-bounce"></i> เปิดระบบลงทะเบียนแล้ว</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
-                    form.classList.remove('hidden');
+                    let titleStr = c.requireCheckout ? "เปิดระบบลงเวลา (ขามา) แล้ว" : "เปิดระบบลงทะเบียนแล้ว";
+                    panel.innerHTML = `<span class="text-xl text-green-700"><i class="fa-solid fa-door-open animate-bounce"></i> ${titleStr}</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
+                    formVisible = true;
+                    btnText = c.requireCheckout ? "ตรวจสอบเพื่อลงเวลา (มา)" : "ตรวจสอบเพื่อลงทะเบียน";
+                    btnColor = "bg-green-600 hover:bg-green-700";
+                } else if (c.requireCheckout && now > c.regEnd && now < c.checkoutStart) {
+                    let diff = c.checkoutStart - now;
+                    let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                    panel.className = "text-center p-5 rounded-xl font-bold mb-5 bg-indigo-100 text-indigo-800 border-2 border-indigo-400 shadow-md";
+                    panel.innerHTML = `<i class="fa-solid fa-clock-rotate-left text-3xl mb-2 text-indigo-600"></i><br> <span class="text-sm">หมดเวลาลงเวลามา<br>จะเปิดให้ลงเวลา (ขากลับ) ในอีก</span><br><div class="flex justify-center gap-2 mt-3"><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(h).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(m).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(s).padStart(2,'0')}</div></div>`;
+                    formVisible = false;
+                } else if (c.requireCheckout && now >= c.checkoutStart && now <= c.checkoutEnd) {
+                    let diff = c.checkoutEnd - now;
+                    let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                    panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-blue-100 text-blue-800 border-2 border-blue-500 shadow-md flex flex-col justify-center items-center gap-2";
+                    panel.innerHTML = `<span class="text-xl text-blue-700"><i class="fa-solid fa-door-open animate-bounce"></i> เปิดระบบลงเวลา (ขากลับ) แล้ว</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
+                    formVisible = true;
+                    btnText = "ตรวจสอบเพื่อลงเวลา (กลับ)";
+                    btnColor = "bg-blue-600 hover:bg-blue-700";
                 } else {
                     panel.className = "text-center p-5 rounded-xl font-bold mb-5 bg-gray-200 text-gray-700 border-2 border-gray-400 shadow-inner";
                     panel.innerHTML = `<i class="fa-solid fa-door-closed text-4xl mb-2 text-gray-500"></i><br><span class="text-lg">ปิดระบบลงทะเบียนแล้ว</span>`;
-                    form.classList.add('hidden'); clearInterval(countdownTimer);
+                    formVisible = false;
+                    clearInterval(countdownTimer);
+                }
+
+                if (formVisible) {
+                    form.classList.remove('hidden');
+                    if (btnVerify) {
+                        btnVerify.innerHTML = `<i class="fa-solid fa-address-card mr-2"></i> ${btnText}`;
+                        btnVerify.className = `w-full mt-4 ${btnColor} text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 text-xl`;
+                    }
+                } else {
+                    form.classList.add('hidden');
                 }
             };
             updateState(); countdownTimer = setInterval(updateState, 1000);
