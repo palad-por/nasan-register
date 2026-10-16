@@ -34,6 +34,7 @@
 </head>
 <body class="text-gray-800" onload="initApp()">
 
+    <!-- แจ้งเตือนแอป LINE -->
     <div id="line-warning" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 z-[100000] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col">
             <div class="bg-red-500 p-6 flex flex-col items-center justify-center text-center">
@@ -75,7 +76,7 @@
 
             <div id="active-activity-state" class="hidden">
                 <h2 id="disp-act-name" class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 text-center text-blue-800">ชื่อกิจกรรม</h2>
-                <div class="text-sm text-gray-700 space-y-2 mb-4 bg-green-50 p-4 rounded-lg border border-green-200">
+                <div class="text-sm text-gray-700 space-y-2 mb-4 bg-green-50 p-4 rounded-lg border border-green-200 relative">
                     <p class="flex items-center"><i class="fa-regular fa-calendar text-green-700 w-6 text-lg"></i> <span id="disp-act-date" class="font-bold"></span> &nbsp;เวลา <span id="disp-act-time" class="font-bold text-green-900 mx-1"></span> น.</p>
                     <p class="flex items-start"><i class="fa-solid fa-location-dot text-green-700 w-6 text-lg mt-0.5"></i> <span id="disp-act-loc"></span></p>
                 </div>
@@ -241,14 +242,23 @@
                 <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200 shadow-sm">
                     <label class="block text-base font-bold text-indigo-800 mb-3 border-b border-indigo-200 pb-2"><i class="fa-solid fa-list-check"></i> รูปแบบการลงเวลา</label>
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" id="new-req-checkout" class="w-5 h-5 text-indigo-600 rounded">
+                        <input type="checkbox" id="new-req-checkout" class="w-5 h-5 text-indigo-600 rounded" onchange="toggleCheckoutTimes(this.checked)">
                         <span class="font-bold text-indigo-900">เปิดให้ลงทะเบียน "เวลากลับ (Check-out)" ด้วย</span>
                     </label>
                     <p class="text-xs text-indigo-600 mt-2 ml-8">หากติ๊กเลือก ผู้เข้าร่วมจะต้องสแกนใบหน้า 2 รอบ (ขามา และ ขากลับ) จึงจะถือว่าเข้าร่วมสมบูรณ์</p>
+                    
+                    <!-- เพิ่มส่วนกำหนดเวลาลงเวลากลับ -->
+                    <div id="checkout-times-container" class="hidden mt-4 ml-8 p-4 bg-white rounded-lg border border-indigo-100 shadow-inner">
+                        <label class="block text-sm font-bold mb-3 text-indigo-800"><i class="fa-solid fa-clock"></i> กำหนดห้วงเวลาลงทะเบียนกลับ</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-bold mb-1 text-indigo-600">เริ่มให้ลงเวลากลับ</label><input type="datetime-local" id="new-checkout-start" class="w-full p-2 border rounded-lg bg-slate-50 focus:border-indigo-500 outline-none"></div>
+                            <div><label class="block text-xs font-bold mb-1 text-indigo-600">สิ้นสุดการลงเวลากลับ</label><input type="datetime-local" id="new-checkout-end" class="w-full p-2 border rounded-lg bg-slate-50 focus:border-indigo-500 outline-none"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-yellow-50 p-5 rounded-xl border border-yellow-300 shadow-sm">
-                    <label class="block text-base font-bold text-yellow-800 mb-3 border-b border-yellow-200 pb-2"><i class="fa-solid fa-clock"></i> ห้วงเวลาลงทะเบียน</label>
+                    <label class="block text-base font-bold text-yellow-800 mb-3 border-b border-yellow-200 pb-2"><i class="fa-solid fa-clock"></i> ห้วงเวลาลงทะเบียนมา</label>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div><label class="block text-sm font-bold mb-1 text-yellow-700">เริ่มให้ลงทะเบียน</label><input type="datetime-local" id="new-reg-start" class="w-full p-3 border rounded-lg bg-white"></div>
                         <div><label class="block text-sm font-bold mb-1 text-yellow-700">สิ้นสุดการลงทะเบียน</label><input type="datetime-local" id="new-reg-end" class="w-full p-3 border rounded-lg bg-white"></div>
@@ -295,7 +305,6 @@
                         <div class="flex gap-2 w-full md:w-auto">
                             <button onclick="loadDashboardData('ADMIN')" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold shadow-md flex-1 md:flex-none transition"><i class="fa-solid fa-search"></i> ค้นหา</button>
                             <button id="btn-toggle-vis" onclick="toggleVisibility()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-3 rounded-lg font-bold shadow-md flex-1 md:flex-none hidden whitespace-nowrap transition border border-yellow-600"><i class="fa-solid fa-eye-slash"></i> ซ่อน</button>
-                            <!-- ปุ่มลบกิจกรรม -->
                             <button id="btn-delete-act" onclick="deleteActivity()" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-3 rounded-lg font-bold shadow-md flex-1 md:flex-none whitespace-nowrap transition"><i class="fa-solid fa-trash-can"></i> ลบ</button>
                         </div>
                     </div>
@@ -585,6 +594,25 @@
                         
                         const locEl = document.getElementById('disp-act-loc');
                         if(locEl) locEl.innerText = res.actLocation || '-';
+
+                        let checkoutNoteEl = document.getElementById('disp-act-checkout-note');
+                        if (!checkoutNoteEl) {
+                            checkoutNoteEl = document.createElement('p');
+                            checkoutNoteEl.id = 'disp-act-checkout-note';
+                            checkoutNoteEl.className = 'hidden flex items-start text-indigo-600 font-bold mt-2 pt-2 border-t border-green-200';
+                            locEl.parentElement.parentElement.appendChild(checkoutNoteEl);
+                        }
+
+                        if(res.requireCheckout && res.checkoutStart > 0) {
+                            const dStart = new Date(res.checkoutStart);
+                            const dEnd = new Date(res.checkoutEnd);
+                            const tStart = `${String(dStart.getHours()).padStart(2,'0')}:${String(dStart.getMinutes()).padStart(2,'0')} น.`;
+                            const tEnd = `${String(dEnd.getHours()).padStart(2,'0')}:${String(dEnd.getMinutes()).padStart(2,'0')} น.`;
+                            checkoutNoteEl.innerHTML = `<i class="fa-solid fa-clock-rotate-left w-6 text-lg mt-0.5"></i> ลงเวลากลับ: ${tStart} - ${tEnd}`;
+                            checkoutNoteEl.classList.remove('hidden');
+                        } else {
+                            checkoutNoteEl.classList.add('hidden');
+                        }
                         
                         manageTimeState();
                     }
@@ -901,6 +929,14 @@
             if(tid==='tab-manage-admin') loadAdminList();
         }
 
+        function toggleCheckoutTimes(isChecked) {
+            const con = document.getElementById('checkout-times-container');
+            if(con) {
+                if(isChecked) con.classList.remove('hidden');
+                else con.classList.add('hidden');
+            }
+        }
+
         function toggleCheckboxes(name, isChecked) {
             const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
             checkboxes.forEach(cb => cb.checked = isChecked);
@@ -955,6 +991,8 @@
             const lngEl = document.getElementById('new-act-lng');
             const radEl = document.getElementById('new-act-radius');
             const reqCheckEl = document.getElementById('new-req-checkout');
+            const checkStartEl = document.getElementById('new-checkout-start');
+            const checkEndEl = document.getElementById('new-checkout-end');
 
             if(!nameEl || !startEl || !endEl || !latEl || !lngEl) return;
 
@@ -962,6 +1000,15 @@
             const regEndTs = new Date(endEl.value).getTime();
             const radius = radEl ? radEl.value : 300;
             const reqCheck = reqCheckEl ? reqCheckEl.checked : false;
+
+            let checkoutStartTs = 0, checkoutEndTs = 0;
+            if (reqCheck) {
+                checkoutStartTs = new Date(checkStartEl.value).getTime();
+                checkoutEndTs = new Date(checkEndEl.value).getTime();
+                if(isNaN(checkoutStartTs) || isNaN(checkoutEndTs)) {
+                    return Alert.fire('แจ้งเตือน', 'กรุณากำหนดห้วงเวลาลงทะเบียนกลับให้ครบถ้วน', 'warning');
+                }
+            }
 
             if(!nameEl.value || isNaN(regStartTs) || isNaN(regEndTs) || !latEl.value) {
                 return Alert.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ โดยเฉพาะห้วงเวลา', 'warning');
@@ -982,7 +1029,9 @@
                 lat: latEl.value, lng: lngEl.value, radius: radius, 
                 createdBy: adminUser ? adminUser.name : 'Admin', 
                 allowedPositions: allowedPositions, allowedTambons: allowedTambons, allowedMoos: allowedMoos,
-                requireCheckout: reqCheck
+                requireCheckout: reqCheck,
+                checkoutStartTs: checkoutStartTs,
+                checkoutEndTs: checkoutEndTs
             };
             
             showLoading("กำลังสร้าง...");
@@ -1183,6 +1232,22 @@
             const timeEl = document.getElementById(`${prefix}-info-time`); const fTime = dashboardActivityInfo.time ? dashboardActivityInfo.time : ''; if(timeEl) timeEl.innerText = fTime;
             const locEl = document.getElementById(`${prefix}-info-loc`); if(locEl) locEl.innerText = dashboardActivityInfo.loc || '-';
             const regEl = document.getElementById(`${prefix}-info-reg`); if(regEl) regEl.innerText = `${formatCustomTime(dashboardActivityInfo.regStart)} ถึง ${formatCustomTime(dashboardActivityInfo.regEnd)}`;
+
+            let checkNote = document.getElementById(`${prefix}-info-checkout`);
+            if (!checkNote && dashboardActivityInfo.requireCheckout) {
+                 checkNote = document.createElement('p');
+                 checkNote.id = `${prefix}-info-checkout`;
+                 checkNote.className = "md:col-span-2 text-indigo-700 font-bold tracking-wide mt-1";
+                 regEl.parentElement.parentElement.appendChild(checkNote);
+            }
+            if (checkNote) {
+                if (dashboardActivityInfo.requireCheckout && dashboardActivityInfo.checkoutStart > 0) {
+                    checkNote.innerHTML = `<i class="fa-solid fa-clock-rotate-left w-6 text-base text-indigo-600"></i> เวลาลงทะเบียนกลับ: <span class="text-indigo-600">${formatCustomTime(dashboardActivityInfo.checkoutStart)} ถึง ${formatCustomTime(dashboardActivityInfo.checkoutEnd)}</span>`;
+                    checkNote.classList.remove('hidden');
+                } else {
+                    checkNote.classList.add('hidden');
+                }
+            }
 
             if(mode === 'ADMIN') {
                 const btnToggle = document.getElementById('btn-toggle-vis');
