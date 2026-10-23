@@ -179,7 +179,7 @@
                 <button onclick="setQuickFilter('PUBLIC', 'รอลงเวลากลับ')" id="pub-btn-wait" class="filter-btn filter-btn-wait pub-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
                 <button onclick="setQuickFilter('PUBLIC', 'ไม่เข้าร่วม')" id="pub-btn-miss" class="filter-btn filter-btn-miss pub-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
             </div>
-            <select id="pub-filter-status" class="hidden"><option value=""></option><option value="เข้าร่วม"></option><option value="รอลงเวลากลับ"></option><option value="ไม่เข้าร่วม"></option></select>
+            <select id="pub-filter-status" class="hidden"><option value=""></option><option value="เข้าร่วม"></option><option value="รอลงเวลากลับ"></option><option value="ไม่ลงเวลากลับ"></option><option value="ไม่เข้าร่วม"></option></select>
             <div class="mb-4 relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i class="fa-solid fa-magnifying-glass text-gray-400"></i></div>
                 <input type="text" id="pub-search-input" onkeyup="renderTable('PUBLIC')" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 block w-full pl-10 p-2.5 shadow-sm" placeholder="ค้นหาด้วย ชื่อ นามสกุล หรือตำแหน่ง...">
@@ -328,14 +328,14 @@
                 </div>
                 <div class="glass-card p-5 shadow-md">
                     <div class="no-print">
-                        <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-                            <button onclick="setQuickFilter('ADMIN', '')" id="adm-btn-all" class="filter-btn filter-btn-all active adm-filter-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-users"></i> ทั้งหมด</button>
-                            <button onclick="setQuickFilter('ADMIN', 'เข้าร่วม')" id="adm-btn-join" class="filter-btn filter-btn-join adm-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
-                            <button onclick="setQuickFilter('ADMIN', 'รอลงเวลากลับ')" id="adm-btn-wait" class="filter-btn filter-btn-wait adm-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
-                            <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
-                        </div>
-                        <select id="adm-filter-status" class="hidden"><option value=""></option><option value="เข้าร่วม"></option><option value="รอลงเวลากลับ"></option><option value="ไม่เข้าร่วม"></option></select>
-                        <div class="mb-4 relative">
+                <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+                    <button onclick="setQuickFilter('ADMIN', '')" id="adm-btn-all" class="filter-btn filter-btn-all active adm-filter-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-users"></i> ทั้งหมด</button>
+                    <button onclick="setQuickFilter('ADMIN', 'เข้าร่วม')" id="adm-btn-join" class="filter-btn filter-btn-join adm-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
+                    <button onclick="setQuickFilter('ADMIN', 'รอลงเวลากลับ')" id="adm-btn-wait" class="filter-btn filter-btn-wait adm-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
+                    <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
+                </div>
+                <select id="adm-filter-status" class="hidden"><option value=""></option><option value="เข้าร่วม"></option><option value="รอลงเวลากลับ"></option><option value="ไม่ลงเวลากลับ"></option><option value="ไม่เข้าร่วม"></option></select>
+                <div class="mb-4 relative">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i class="fa-solid fa-magnifying-glass text-gray-400"></i></div>
                             <input type="text" id="adm-search-input" onkeyup="renderTable('ADMIN')" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 block w-full pl-10 p-2.5 shadow-sm" placeholder="ค้นหาด้วย ชื่อ นามสกุล หรือเลขบัตร...">
                         </div>
