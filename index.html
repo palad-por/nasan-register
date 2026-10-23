@@ -29,6 +29,8 @@
         .filter-btn.active { border-bottom: 4px solid; filter: brightness(0.9); }
         .filter-btn-all.active { border-color: #3b82f6; } 
         .filter-btn-join.active { border-color: #16a34a; } 
+        .filter-btn-complete.active { border-color: #059669; } 
+        .filter-btn-wait.active { border-color: #eab308; } 
         .filter-btn-miss.active { border-color: #dc2626; } 
     </style>
 </head>
@@ -89,7 +91,7 @@
                     <label class="block text-sm font-semibold mb-1 text-gray-700">เลขประจำตัวประชาชน (13 หลัก)</label>
                     <input type="text" id="cid-input" inputmode="numeric" maxlength="13" class="w-full p-4 border-2 border-green-300 rounded-xl focus:border-green-600 outline-none text-2xl tracking-widest text-center shadow-inner font-bold text-gray-800" placeholder="X XXXX XXXXX XX X" oninput="formatCID(this)">
                     <button id="btn-verify-user" onclick="verifyUser()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 text-xl">
-                        ตรวจสอบเพื่อลงทะเบียน
+                        ลงทะเบียน
                     </button>
                 </div>
             </div>
@@ -176,10 +178,18 @@
             <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
                 <button onclick="setQuickFilter('PUBLIC', '')" id="pub-btn-all" class="filter-btn filter-btn-all active pub-filter-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-users"></i> ทั้งหมด</button>
                 <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วม')" id="pub-btn-join" class="filter-btn filter-btn-join pub-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
+                <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วมสมบูรณ์')" id="pub-btn-complete" class="filter-btn filter-btn-complete pub-filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์</button>
                 <button onclick="setQuickFilter('PUBLIC', 'รอลงเวลากลับ')" id="pub-btn-wait" class="filter-btn filter-btn-wait pub-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
                 <button onclick="setQuickFilter('PUBLIC', 'ไม่เข้าร่วม')" id="pub-btn-miss" class="filter-btn filter-btn-miss pub-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
             </div>
-            <select id="pub-filter-status" class="hidden"><option value=""></option><option value="เข้าร่วม"></option><option value="รอลงเวลากลับ"></option><option value="ไม่ลงเวลากลับ"></option><option value="ไม่เข้าร่วม"></option></select>
+            <select id="pub-filter-status" class="hidden">
+                <option value=""></option>
+                <option value="เข้าร่วม"></option>
+                <option value="เข้าร่วมสมบูรณ์"></option>
+                <option value="รอลงเวลากลับ"></option>
+                <option value="ไม่ลงเวลากลับ"></option>
+                <option value="ไม่เข้าร่วม"></option>
+            </select>
             <div class="mb-4 relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i class="fa-solid fa-magnifying-glass text-gray-400"></i></div>
                 <input type="text" id="pub-search-input" onkeyup="renderTable('PUBLIC')" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 block w-full pl-10 p-2.5 shadow-sm" placeholder="ค้นหาด้วย ชื่อ นามสกุล หรือตำแหน่ง...">
@@ -328,14 +338,22 @@
                 </div>
                 <div class="glass-card p-5 shadow-md">
                     <div class="no-print">
-                <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-                    <button onclick="setQuickFilter('ADMIN', '')" id="adm-btn-all" class="filter-btn filter-btn-all active adm-filter-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-users"></i> ทั้งหมด</button>
-                    <button onclick="setQuickFilter('ADMIN', 'เข้าร่วม')" id="adm-btn-join" class="filter-btn filter-btn-join adm-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
-                    <button onclick="setQuickFilter('ADMIN', 'รอลงเวลากลับ')" id="adm-btn-wait" class="filter-btn filter-btn-wait adm-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
-                    <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
-                </div>
-                <select id="adm-filter-status" class="hidden"><option value=""></option><option value="เข้าร่วม"></option><option value="รอลงเวลากลับ"></option><option value="ไม่ลงเวลากลับ"></option><option value="ไม่เข้าร่วม"></option></select>
-                <div class="mb-4 relative">
+                        <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+                            <button onclick="setQuickFilter('ADMIN', '')" id="adm-btn-all" class="filter-btn filter-btn-all active adm-filter-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-users"></i> ทั้งหมด</button>
+                            <button onclick="setQuickFilter('ADMIN', 'เข้าร่วม')" id="adm-btn-join" class="filter-btn filter-btn-join adm-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
+                            <button onclick="setQuickFilter('ADMIN', 'เข้าร่วมสมบูรณ์')" id="adm-btn-complete" class="filter-btn filter-btn-complete adm-filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์</button>
+                            <button onclick="setQuickFilter('ADMIN', 'รอลงเวลากลับ')" id="adm-btn-wait" class="filter-btn filter-btn-wait adm-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
+                            <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
+                        </div>
+                        <select id="adm-filter-status" class="hidden">
+                            <option value=""></option>
+                            <option value="เข้าร่วม"></option>
+                            <option value="เข้าร่วมสมบูรณ์"></option>
+                            <option value="รอลงเวลากลับ"></option>
+                            <option value="ไม่ลงเวลากลับ"></option>
+                            <option value="ไม่เข้าร่วม"></option>
+                        </select>
+                        <div class="mb-4 relative">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i class="fa-solid fa-magnifying-glass text-gray-400"></i></div>
                             <input type="text" id="adm-search-input" onkeyup="renderTable('ADMIN')" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 block w-full pl-10 p-2.5 shadow-sm" placeholder="ค้นหาด้วย ชื่อ นามสกุล หรือเลขบัตร...">
                         </div>
@@ -1287,22 +1305,26 @@
                     checkNote.classList.add('hidden');
                 }
             }
-
+            
             const btnWait = document.getElementById(`${prefix}-btn-wait`);
-            if (btnWait) {
+            const btnComplete = document.getElementById(`${prefix}-btn-complete`);
+            if (btnWait && btnComplete) {
                 if (dashboardActivityInfo.requireCheckout) {
                     btnWait.classList.remove('hidden');
+                    btnComplete.classList.remove('hidden');
                     const now = Date.now();
-                    // อัปเดต: สลับข้อความปุ่มตัวกรอง หากเลยเวลาลงทะเบียนกลับแล้ว
                     if (dashboardActivityInfo.checkoutEnd > 0 && now > dashboardActivityInfo.checkoutEnd) {
                         btnWait.innerHTML = '<i class="fa-solid fa-user-clock"></i> เฉพาะไม่ลงเวลากลับ';
+                        btnWait.className = `filter-btn filter-btn-wait ${prefix}-filter-btn bg-orange-100 text-orange-800 px-4 py-2 rounded-lg text-sm font-bold border border-orange-200 whitespace-nowrap shadow-sm`;
                         btnWait.setAttribute('onclick', `setQuickFilter('${mode}', 'ไม่ลงเวลากลับ')`);
                     } else {
                         btnWait.innerHTML = '<i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ';
+                        btnWait.className = `filter-btn filter-btn-wait ${prefix}-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm`;
                         btnWait.setAttribute('onclick', `setQuickFilter('${mode}', 'รอลงเวลากลับ')`);
                     }
                 } else {
                     btnWait.classList.add('hidden');
+                    btnComplete.classList.add('hidden');
                 }
             }
 
@@ -1361,10 +1383,15 @@
             const btnClass = mode === 'PUBLIC' ? 'pub-filter-btn' : 'adm-filter-btn';
             document.querySelectorAll(`.${btnClass}`).forEach(btn => btn.classList.remove('active', 'border-b-4'));
             
-            const btnAll = document.getElementById(`${prefix}-btn-all`); const btnJoin = document.getElementById(`${prefix}-btn-join`); const btnMiss = document.getElementById(`${prefix}-btn-miss`); const btnWait = document.getElementById(`${prefix}-btn-wait`);
+            const btnAll = document.getElementById(`${prefix}-btn-all`); 
+            const btnJoin = document.getElementById(`${prefix}-btn-join`); 
+            const btnComplete = document.getElementById(`${prefix}-btn-complete`); 
+            const btnMiss = document.getElementById(`${prefix}-btn-miss`); 
+            const btnWait = document.getElementById(`${prefix}-btn-wait`);
+
             if(statusVal === '' && btnAll) btnAll.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วม' && btnJoin) btnJoin.classList.add('active', 'border-b-4');
-            // อัปเดต: ไฮไลท์ปุ่มเมื่อถูกกด ไม่ว่าจะเป็นสถานะ "รอลงเวลากลับ" หรือ "ไม่ลงเวลากลับ"
+            else if(statusVal === 'เข้าร่วมสมบูรณ์' && btnComplete) btnComplete.classList.add('active', 'border-b-4');
             else if((statusVal === 'รอลงเวลากลับ' || statusVal === 'ไม่ลงเวลากลับ') && btnWait) btnWait.classList.add('active', 'border-b-4');
             else if(statusVal === 'ไม่เข้าร่วม' && btnMiss) btnMiss.classList.add('active', 'border-b-4');
             
@@ -1390,6 +1417,8 @@
                         matchStatus = (d.status === s);
                     } else if (s === 'ไม่เข้าร่วม') {
                         matchStatus = (d.status === 'ไม่เข้าร่วม');
+                    } else if (s === 'เข้าร่วมสมบูรณ์') {
+                        matchStatus = (d.status === 'เข้าร่วมสมบูรณ์');
                     }
                     
                     return matchSearch && (!t || d.tambon === t) && (!m || d.moo === m) && (!p || d.position === p) && matchStatus; 
@@ -1427,7 +1456,6 @@
                 let joinCount = 0;
                 
                 filtered.forEach((d, index) => {
-                    // อัปเดตสถานะที่นับว่าเข้าร่วม
                     const isJoinedAny = (d.status === 'เข้าร่วม' || d.status === 'รอลงเวลากลับ' || d.status === 'ไม่ลงเวลากลับ' || d.status === 'เข้าร่วมสมบูรณ์');
                     if(isJoinedAny) joinCount++; 
                     
@@ -1444,7 +1472,6 @@
                     let statClass = 'text-red-600';
                     if (d.status === 'เข้าร่วม' || d.status === 'เข้าร่วมสมบูรณ์') statClass = 'text-green-600';
                     else if (d.status === 'รอลงเวลากลับ') statClass = 'text-yellow-600';
-                    // อัปเดต: ให้สถานะไม่ลงเวลากลับ กลายเป็นสีส้มเด่นชัด
                     else if (d.status === 'ไม่ลงเวลากลับ') statClass = 'text-orange-500';
 
                     let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td>`;
