@@ -32,6 +32,7 @@
         .filter-btn-complete.active { border-color: #059669; } 
         .filter-btn-wait.active { border-color: #eab308; } 
         .filter-btn-miss.active { border-color: #dc2626; } 
+        .filter-btn-late.active { border-color: #9333ea; }
     </style>
 </head>
 <body class="text-gray-800" onload="initApp()">
@@ -180,6 +181,7 @@
                 <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วม')" id="pub-btn-join" class="filter-btn filter-btn-join pub-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
                 <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วมสมบูรณ์')" id="pub-btn-complete" class="filter-btn filter-btn-complete pub-filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์</button>
                 <button onclick="setQuickFilter('PUBLIC', 'รอลงเวลากลับ')" id="pub-btn-wait" class="filter-btn filter-btn-wait pub-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
+                <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วมสาย')" id="pub-btn-late" class="filter-btn filter-btn-late pub-filter-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-bold border border-purple-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-person-running"></i> เฉพาะเข้าร่วมสาย</button>
                 <button onclick="setQuickFilter('PUBLIC', 'ไม่เข้าร่วม')" id="pub-btn-miss" class="filter-btn filter-btn-miss pub-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
             </div>
             <select id="pub-filter-status" class="hidden">
@@ -188,6 +190,7 @@
                 <option value="เข้าร่วมสมบูรณ์"></option>
                 <option value="รอลงเวลากลับ"></option>
                 <option value="ไม่ลงเวลากลับ"></option>
+                <option value="เข้าร่วมสาย"></option>
                 <option value="ไม่เข้าร่วม"></option>
             </select>
             <div class="mb-4 relative">
@@ -343,6 +346,7 @@
                             <button onclick="setQuickFilter('ADMIN', 'เข้าร่วม')" id="adm-btn-join" class="filter-btn filter-btn-join adm-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
                             <button onclick="setQuickFilter('ADMIN', 'เข้าร่วมสมบูรณ์')" id="adm-btn-complete" class="filter-btn filter-btn-complete adm-filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์</button>
                             <button onclick="setQuickFilter('ADMIN', 'รอลงเวลากลับ')" id="adm-btn-wait" class="filter-btn filter-btn-wait adm-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
+                            <button onclick="setQuickFilter('ADMIN', 'เข้าร่วมสาย')" id="adm-btn-late" class="filter-btn filter-btn-late adm-filter-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-bold border border-purple-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-person-running"></i> เฉพาะเข้าร่วมสาย</button>
                             <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
                         </div>
                         <select id="adm-filter-status" class="hidden">
@@ -351,6 +355,7 @@
                             <option value="เข้าร่วมสมบูรณ์"></option>
                             <option value="รอลงเวลากลับ"></option>
                             <option value="ไม่ลงเวลากลับ"></option>
+                            <option value="เข้าร่วมสาย"></option>
                             <option value="ไม่เข้าร่วม"></option>
                         </select>
                         <div class="mb-4 relative">
@@ -1388,11 +1393,13 @@
             const btnComplete = document.getElementById(`${prefix}-btn-complete`); 
             const btnMiss = document.getElementById(`${prefix}-btn-miss`); 
             const btnWait = document.getElementById(`${prefix}-btn-wait`);
+            const btnLate = document.getElementById(`${prefix}-btn-late`);
 
             if(statusVal === '' && btnAll) btnAll.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วม' && btnJoin) btnJoin.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วมสมบูรณ์' && btnComplete) btnComplete.classList.add('active', 'border-b-4');
             else if((statusVal === 'รอลงเวลากลับ' || statusVal === 'ไม่ลงเวลากลับ') && btnWait) btnWait.classList.add('active', 'border-b-4');
+            else if(statusVal === 'เข้าร่วมสาย' && btnLate) btnLate.classList.add('active', 'border-b-4');
             else if(statusVal === 'ไม่เข้าร่วม' && btnMiss) btnMiss.classList.add('active', 'border-b-4');
             
             renderTable(mode);
@@ -1419,6 +1426,8 @@
                         matchStatus = (d.status === 'ไม่เข้าร่วม');
                     } else if (s === 'เข้าร่วมสมบูรณ์') {
                         matchStatus = (d.status === 'เข้าร่วมสมบูรณ์');
+                    } else if (s === 'เข้าร่วมสาย') {
+                        matchStatus = d.isLate;
                     }
                     
                     return matchSearch && (!t || d.tambon === t) && (!m || d.moo === m) && (!p || d.position === p) && matchStatus; 
@@ -1470,9 +1479,15 @@
                     }
 
                     let statClass = 'text-red-600';
-                    if (d.status === 'เข้าร่วม' || d.status === 'เข้าร่วมสมบูรณ์') statClass = 'text-green-600';
-                    else if (d.status === 'รอลงเวลากลับ') statClass = 'text-yellow-600';
-                    else if (d.status === 'ไม่ลงเวลากลับ') statClass = 'text-orange-500';
+                    let dispStatus = d.status;
+                    if (d.isLate) {
+                        statClass = 'text-purple-600';
+                        if(dispStatus === 'เข้าร่วม' || dispStatus === 'รอลงเวลากลับ' || dispStatus === 'ไม่ลงเวลากลับ') dispStatus = 'เข้าร่วมสาย';
+                    } else {
+                        if (d.status === 'เข้าร่วม' || d.status === 'เข้าร่วมสมบูรณ์') statClass = 'text-green-600';
+                        else if (d.status === 'รอลงเวลากลับ') statClass = 'text-yellow-600';
+                        else if (d.status === 'ไม่ลงเวลากลับ') statClass = 'text-orange-500';
+                    }
 
                     let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td>`;
                     
@@ -1483,7 +1498,7 @@
                         rowHtml += `
                             <td class="px-4 py-3 text-center text-gray-500 font-mono">${timeInStr}</td>
                             <td class="px-4 py-3 text-center text-gray-500 font-mono">${timeOutStr}</td>
-                            <td class="px-4 py-3 text-center font-bold ${statClass}">${d.status}</td>
+                            <td class="px-4 py-3 text-center font-bold ${statClass}">${dispStatus}</td>
                             <td class="px-4 py-3 text-center no-print">${photoInBtn}</td>
                             <td class="px-4 py-3 text-center no-print">${photoOutBtn}</td>
                         `;
@@ -1491,7 +1506,7 @@
                         let photoBtn = d.photoUrl ? `<button onclick="viewPhoto('${d.photoUrl}')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded text-xs font-bold border border-blue-300 no-print"><i class="fa-solid fa-image"></i> รูป</button>` : '-';
                         rowHtml += `
                             <td class="px-4 py-3 text-center text-gray-500 font-mono">${timeInStr}</td>
-                            <td class="px-4 py-3 text-center font-bold ${statClass}">${d.status}</td>
+                            <td class="px-4 py-3 text-center font-bold ${statClass}">${dispStatus}</td>
                             <td class="px-4 py-3 text-center no-print">${photoBtn}</td>
                         `;
                     }
