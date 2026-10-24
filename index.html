@@ -33,6 +33,7 @@
         .filter-btn-wait.active { border-color: #eab308; } 
         .filter-btn-miss.active { border-color: #dc2626; } 
         .filter-btn-late.active { border-color: #9333ea; }
+        .filter-btn-other.active { border-color: #ec4899; }
     </style>
 </head>
 <body class="text-gray-800" onload="initApp()">
@@ -182,6 +183,7 @@
                 <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วมสมบูรณ์')" id="pub-btn-complete" class="filter-btn filter-btn-complete pub-filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์</button>
                 <button onclick="setQuickFilter('PUBLIC', 'รอลงเวลากลับ')" id="pub-btn-wait" class="filter-btn filter-btn-wait pub-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
                 <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วมสาย')" id="pub-btn-late" class="filter-btn filter-btn-late pub-filter-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-bold border border-purple-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-person-running"></i> เฉพาะเข้าร่วมสาย</button>
+                <button onclick="setQuickFilter('PUBLIC', 'ลา_อื่นๆ')" id="pub-btn-other" class="filter-btn filter-btn-other pub-filter-btn bg-pink-100 text-pink-800 px-4 py-2 rounded-lg text-sm font-bold border border-pink-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-file-signature"></i> ลา/ภารกิจ/อื่นๆ</button>
                 <button onclick="setQuickFilter('PUBLIC', 'ไม่เข้าร่วม')" id="pub-btn-miss" class="filter-btn filter-btn-miss pub-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
             </div>
             <select id="pub-filter-status" class="hidden">
@@ -192,6 +194,7 @@
                 <option value="ไม่ลงเวลากลับ"></option>
                 <option value="เข้าร่วมสาย"></option>
                 <option value="ไม่เข้าร่วม"></option>
+                <option value="ลา_อื่นๆ"></option>
             </select>
             <div class="mb-4 relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i class="fa-solid fa-magnifying-glass text-gray-400"></i></div>
@@ -347,6 +350,7 @@
                             <button onclick="setQuickFilter('ADMIN', 'เข้าร่วมสมบูรณ์')" id="adm-btn-complete" class="filter-btn filter-btn-complete adm-filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์</button>
                             <button onclick="setQuickFilter('ADMIN', 'รอลงเวลากลับ')" id="adm-btn-wait" class="filter-btn filter-btn-wait adm-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
                             <button onclick="setQuickFilter('ADMIN', 'เข้าร่วมสาย')" id="adm-btn-late" class="filter-btn filter-btn-late adm-filter-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-bold border border-purple-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-person-running"></i> เฉพาะเข้าร่วมสาย</button>
+                            <button onclick="setQuickFilter('ADMIN', 'ลา_อื่นๆ')" id="adm-btn-other" class="filter-btn filter-btn-other adm-filter-btn bg-pink-100 text-pink-800 px-4 py-2 rounded-lg text-sm font-bold border border-pink-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-file-signature"></i> ลา/ภารกิจ/อื่นๆ</button>
                             <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
                         </div>
                         <select id="adm-filter-status" class="hidden">
@@ -357,6 +361,7 @@
                             <option value="ไม่ลงเวลากลับ"></option>
                             <option value="เข้าร่วมสาย"></option>
                             <option value="ไม่เข้าร่วม"></option>
+                            <option value="ลา_อื่นๆ"></option>
                         </select>
                         <div class="mb-4 relative">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i class="fa-solid fa-magnifying-glass text-gray-400"></i></div>
@@ -1394,12 +1399,14 @@
             const btnMiss = document.getElementById(`${prefix}-btn-miss`); 
             const btnWait = document.getElementById(`${prefix}-btn-wait`);
             const btnLate = document.getElementById(`${prefix}-btn-late`);
+            const btnOther = document.getElementById(`${prefix}-btn-other`);
 
             if(statusVal === '' && btnAll) btnAll.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วม' && btnJoin) btnJoin.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วมสมบูรณ์' && btnComplete) btnComplete.classList.add('active', 'border-b-4');
             else if((statusVal === 'รอลงเวลากลับ' || statusVal === 'ไม่ลงเวลากลับ') && btnWait) btnWait.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วมสาย' && btnLate) btnLate.classList.add('active', 'border-b-4');
+            else if(statusVal === 'ลา_อื่นๆ' && btnOther) btnOther.classList.add('active', 'border-b-4');
             else if(statusVal === 'ไม่เข้าร่วม' && btnMiss) btnMiss.classList.add('active', 'border-b-4');
             
             renderTable(mode);
@@ -1428,6 +1435,9 @@
                         matchStatus = (d.status === 'เข้าร่วมสมบูรณ์');
                     } else if (s === 'เข้าร่วมสาย') {
                         matchStatus = d.isLate;
+                    } else if (s === 'ลา_อื่นๆ') {
+                        const standardStatuses = ['เข้าร่วม', 'รอลงเวลากลับ', 'ไม่ลงเวลากลับ', 'เข้าร่วมสมบูรณ์', 'ไม่เข้าร่วม'];
+                        matchStatus = !standardStatuses.includes(d.status);
                     }
                     
                     return matchSearch && (!t || d.tambon === t) && (!m || d.moo === m) && (!p || d.position === p) && matchStatus; 
@@ -1457,6 +1467,9 @@
                         <th class="px-4 py-3 text-center">สถานะ</th>
                         <th class="px-4 py-3 text-center no-print">หลักฐาน</th>`;
                     }
+                    if (mode === 'ADMIN') {
+                         headerHtml += `<th class="px-4 py-3 text-center no-print">จัดการ</th>`;
+                    }
                     headerHtml += `</tr>`;
                     thead.innerHTML = headerHtml;
                 }
@@ -1478,15 +1491,18 @@
                         if(parts.length > 1) timeOutStr = parts[1];
                     }
 
-                    let statClass = 'text-red-600';
+                    let statClass = 'text-gray-600';
                     let dispStatus = d.status;
-                    if (d.isLate) {
+                    
+                    if (d.isLate && ['เข้าร่วม', 'รอลงเวลากลับ', 'ไม่ลงเวลากลับ'].includes(d.status)) {
                         statClass = 'text-purple-600';
-                        if(dispStatus === 'เข้าร่วม' || dispStatus === 'รอลงเวลากลับ' || dispStatus === 'ไม่ลงเวลากลับ') dispStatus = 'เข้าร่วมสาย';
+                        dispStatus = 'เข้าร่วมสาย';
                     } else {
                         if (d.status === 'เข้าร่วม' || d.status === 'เข้าร่วมสมบูรณ์') statClass = 'text-green-600';
                         else if (d.status === 'รอลงเวลากลับ') statClass = 'text-yellow-600';
                         else if (d.status === 'ไม่ลงเวลากลับ') statClass = 'text-orange-500';
+                        else if (d.status === 'ไม่เข้าร่วม') statClass = 'text-red-600';
+                        else statClass = 'text-pink-600'; 
                     }
 
                     let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td>`;
@@ -1511,7 +1527,9 @@
                         `;
                     }
                     
-                    if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500 no-print">${d.cid}</td>` + rowHtml;
+                    let editBtn = mode === 'ADMIN' ? `<td class="px-4 py-3 text-center no-print"><button onclick="openEditModal('${d.cid}', '${d.name}', '${d.status}', '${dashboardActivityInfo.requireCheckout}')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded shadow-sm text-xs font-bold"><i class="fa-solid fa-pen"></i> แก้ไข</button></td>` : '';
+                    
+                    if(mode === 'ADMIN') rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td><td class="px-4 py-3 font-mono text-gray-500 no-print">${d.cid}</td>` + rowHtml + editBtn;
                     else rowHtml = `<td class="px-4 py-3 text-center text-gray-500">${index+1}</td>` + rowHtml;
                     
                     if(tbody) tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">${rowHtml}</tr>`;
@@ -1530,6 +1548,99 @@
         }
 
         function viewPhoto(url) { window.open(url, '_blank'); }
+
+        function openEditModal(cid, name, currentStatus, requireCheckout) {
+            let optionsHtml = '';
+            const stdUnjoined = ['ไม่เข้าร่วม'];
+            const stdMissed = ['ไม่ลงเวลากลับ'];
+            
+            if (stdUnjoined.includes(currentStatus)) {
+                optionsHtml = `
+                    <option value="ลาป่วย">ลาป่วย</option>
+                    <option value="ลากิจ">ลากิจ</option>
+                    <option value="ติดราชการ">ติดราชการ</option>
+                    ${requireCheckout === 'true' ? '<option value="รอลงเวลากลับ">ระบบขัดข้อง (แก้เพื่อให้สแกนขากลับได้)</option>' : '<option value="เข้าร่วมสมบูรณ์">ระบบขัดข้อง (มาทัน/ให้สถานะเข้าร่วมสมบูรณ์)</option>'}
+                    <option value="OTHER">อื่นๆ (โปรดระบุเหตุผล)</option>
+                `;
+            } else if (stdMissed.includes(currentStatus)) {
+                optionsHtml = `
+                    <option value="กลับก่อนเวลา (ติดภารกิจ)">กลับก่อนเวลา (ติดภารกิจ)</option>
+                    <option value="ระบบขัดข้อง (ลงเวลากลับไม่ทัน)">ระบบขัดข้อง (ลงเวลากลับไม่ทัน)</option>
+                    <option value="ลืมลงเวลา (มีหลักฐานยืนยัน)">ลืมลงเวลา (มีหลักฐานยืนยัน)</option>
+                    <option value="เข้าร่วมสมบูรณ์">แก้สถานะให้เป็น "เข้าร่วมสมบูรณ์"</option>
+                    <option value="OTHER">อื่นๆ (โปรดระบุเหตุผล)</option>
+                `;
+            } else {
+                optionsHtml = `
+                    <option value="ลาป่วย">ลาป่วย</option>
+                    <option value="ลากิจ">ลากิจ</option>
+                    <option value="ติดราชการ">ติดราชการ</option>
+                    <option value="เข้าร่วมสมบูรณ์">เข้าร่วมสมบูรณ์</option>
+                    <option value="ไม่เข้าร่วม">ไม่เข้าร่วม</option>
+                    <option value="OTHER">อื่นๆ (โปรดระบุเหตุผล)</option>
+                `;
+            }
+
+            Swal.fire({
+                title: 'แก้ไขสถานะ/หมายเหตุ',
+                html: `
+                    <div class="text-left mb-2 text-sm text-gray-700"><b>ชื่อ:</b> ${name}</div>
+                    <div class="text-left mb-4 text-sm text-gray-700"><b>สถานะปัจจุบัน:</b> <span class="font-bold text-indigo-600">${currentStatus}</span></div>
+                    <select id="edit-status-select" class="w-full p-3 border rounded-lg mb-3 outline-none font-semibold text-gray-700 shadow-sm" onchange="document.getElementById('edit-custom-status').style.display = this.value === 'OTHER' ? 'block' : 'none'">
+                        <option value="">-- เลือกสถานะใหม่ --</option>
+                        ${optionsHtml}
+                    </select>
+                    <input type="text" id="edit-custom-status" class="w-full p-3 border rounded-lg outline-none hidden shadow-inner" placeholder="ระบุเหตุผล/สถานะอื่นๆ...">
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึกข้อมูล',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#2563eb',
+                preConfirm: () => {
+                    let sel = document.getElementById('edit-status-select').value;
+                    let cust = document.getElementById('edit-custom-status').value;
+                    if (!sel) {
+                        Swal.showValidationMessage('กรุณาเลือกสถานะ');
+                        return false;
+                    }
+                    if (sel === 'OTHER' && !cust.trim()) {
+                        Swal.showValidationMessage('กรุณาระบุเหตุผลอื่นๆ');
+                        return false;
+                    }
+                    return sel === 'OTHER' ? cust.trim() : sel;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const newStatus = result.value;
+                    saveAdminUpdateStatus(cid, name, newStatus);
+                }
+            });
+        }
+
+        function saveAdminUpdateStatus(cid, name, newStatus) {
+            const actId = document.getElementById('admin-activity-select').value;
+            if(!actId) return Alert.fire('ผิดพลาด', 'ไม่พบรหัสกิจกรรม', 'error');
+            
+            let personData = dashboardDataRaw.find(d => d.cid === cid) || {};
+            const payload = {
+                activityId: actId, cid: cid, name: name,
+                position: personData.position || '', moo: personData.moo || '', tambon: personData.tambon || '',
+                newStatus: newStatus
+            };
+            
+            showLoading("กำลังบันทึกสถานะ...");
+            callServer('adminUpdateStatus', { payload: payload })
+                .then(res => {
+                    hideLoading();
+                    if(res.success) {
+                        Alert.fire('สำเร็จ', res.message, 'success');
+                        loadDashboardData('ADMIN');
+                    } else {
+                        Alert.fire('ผิดพลาด', res.message, 'error');
+                    }
+                })
+                .catch(handleBackendError);
+        }
 
         function loadAdminList() {
             showLoading("ดึงข้อมูล...");
