@@ -813,14 +813,14 @@
                         noteEl.innerText = res.statusNote || "สถานะ: พร้อมถ่ายภาพ";
                         if(res.phase === "CHECKOUT") {
                             noteEl.parentElement.className = "mt-2 bg-blue-100 border border-blue-300 text-blue-800 px-3 py-2 rounded font-bold text-center";
-                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600');
+                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600, #preview-container button.bg-blue-600');
                             if(btnCamSub) {
                                 btnCamSub.className = "bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg";
                                 btnCamSub.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล';
                             }
                         } else if(res.phase === "LATE_CHECKIN") {
                             noteEl.parentElement.className = "mt-2 bg-purple-100 border border-purple-300 text-purple-800 px-3 py-2 rounded font-bold text-center";
-                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600');
+                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600, #preview-container button.bg-blue-600');
                             if(btnCamSub) {
                                 btnCamSub.className = "bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg";
                                 btnCamSub.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยอมรับและลงทะเบียนมาสาย';
@@ -984,6 +984,14 @@
             
             const cidEl = document.getElementById('cid-input');
             if(!cidEl) return;
+            
+            // ล็อกปุ่มกดทันที ป้องกันการกดเบิ้ล
+            const btnSubmit = document.getElementById('btn-submit-data');
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งข้อมูล...';
+                btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+            }
 
             showLoading("กำลังส่งข้อมูล...");
             const payload = {
@@ -1013,13 +1021,32 @@
                             finalPhotoBase64 = null; 
                             currentUser = null;
                             
+                            // ปลดล็อกปุ่มหลังทำเสร็จ
+                            if (btnSubmit) {
+                                btnSubmit.disabled = false;
+                                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                            }
+                            
                             openPublicDashboard(currentActivity.id);
                         });
                     } else {
                         Alert.fire('ล้มเหลว', res.message, 'error');
+                        // ปลดล็อกปุ่มเมื่อเกิด Error
+                        if (btnSubmit) {
+                            btnSubmit.disabled = false;
+                            btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล';
+                            btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
                     }
                 })
-                .catch(handleBackendError);
+                .catch(err => {
+                    handleBackendError(err);
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล';
+                        btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                });
         }
 
         function processLogin() {
