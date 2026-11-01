@@ -88,6 +88,7 @@
                 </div>
 
                 <div id="status-panel" class="text-center p-4 rounded-xl mb-4"></div>
+                <div id="extra-panel" class="mb-4"></div>
 
                 <div id="reg-form" class="hidden">
                     <label class="block text-sm font-semibold mb-1 text-gray-700">เลขประจำตัวประชาชน (13 หลัก)</label>
@@ -344,10 +345,7 @@
                     <div class="bg-green-50 p-3 rounded-lg border border-green-200"><p class="text-xs text-green-600 font-bold">เข้าร่วม (ปกติ)</p><p id="adm-stat-joined" class="text-xl font-bold text-green-700">-</p></div>
                     <div class="bg-purple-50 p-3 rounded-lg border border-purple-200"><p class="text-xs text-purple-600 font-bold">เข้าร่วม (สาย)</p><p id="adm-stat-late" class="text-xl font-bold text-purple-700">-</p></div>
                     <div class="bg-red-50 p-3 rounded-lg border border-red-200"><p class="text-xs text-red-600 font-bold">ยังไม่เข้าร่วม</p><p id="adm-stat-missing" class="text-xl font-bold text-red-700">-</p></div>
-                    <div class="col-span-2 md:col-span-4 bg-gray-200 h-4 rounded-full overflow-hidden mt-1 shadow-inner relative">
-                        <div id="adm-stat-progress" class="bg-green-500 h-full transition-all duration-500 w-0"></div>
-                        <p id="adm-stat-percent" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-800 drop-shadow-sm"></p>
-                    </div>
+                    <div class="col-span-2 md:col-span-4 bg-gray-200 h-4 rounded-full overflow-hidden mt-1 shadow-inner relative"><div id="adm-stat-progress" class="bg-green-500 h-full transition-all duration-500 w-0"></div><p id="adm-stat-percent" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-800 drop-shadow-sm"></p></div>
                 </div>
                 <div class="glass-card p-5 shadow-md">
                     <div class="no-print">
@@ -491,6 +489,8 @@
         let currentActivity = null; let currentUser = null; let adminUser = null; let userLat = null, userLng = null;
         let finalPhotoBase64 = null; let countdownTimer; let dashboardDataRaw = []; let dashboardActivityInfo = {}; 
         let currentActVisibility = true; 
+        
+        let lateModeActive = false; // ตัวแปรสำหรับเช็คว่าผู้ใช้กดปุ่มลงทะเบียนมาสายหรือไม่
 
         const Alert = Swal.mixin({ customClass: { confirmButton: 'bg-green-600 text-white px-6 py-2 rounded-lg font-bold outline-none shadow-md' }, buttonsStyling: false });
         
@@ -553,6 +553,16 @@
             return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543} เวลา ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} น.`;
         };
 
+        function activateLateMode() {
+            lateModeActive = true;
+            manageTimeState();
+        }
+
+        function deactivateLateMode() {
+            lateModeActive = false;
+            manageTimeState();
+        }
+
         function initApp() {
             const isLineBrowser = /Line/i.test(navigator.userAgent);
             if(isLineBrowser) {
@@ -598,7 +608,10 @@
             const targetEl = document.getElementById(vid);
             if(targetEl) targetEl.classList.remove('hidden');
             
-            if(vid === 'view-home') initFrontPage();
+            if(vid === 'view-home') {
+                lateModeActive = false;
+                initFrontPage();
+            }
         }
 
         function initFrontPage() {
@@ -664,16 +677,19 @@
             const updateState = () => {
                 const now = Date.now();
                 const panel = document.getElementById('status-panel');
+                const extraPanel = document.getElementById('extra-panel');
                 const form = document.getElementById('reg-form');
                 const btnVerify = document.getElementById('btn-verify-user');
-                if(!panel || !form) return;
+                if(!panel || !extraPanel || !form) return;
 
                 const c = currentActivity;
                 let formVisible = false;
                 let btnText = "ลงทะเบียน";
-                let btnColor = "bg-green-600 hover:bg-green-700";
+                let btnColor = "bg-green-600 hover:bg-green-700 text-white";
+                
+                extraPanel.innerHTML = '';
 
-                let lateEnd = c.requireCheckout ? c.checkoutEnd : (c.regEnd + 3600000); // ช่วงเวลาผ่อนผัน
+                let lateEnd = c.requireCheckout ? c.checkoutEnd : (c.regEnd + 3600000); 
 
                 if (now < c.regStart) {
                     let diff = c.regStart - now;
@@ -692,30 +708,59 @@
                     btnText = c.requireCheckout ? "ตรวจสอบเพื่อลงเวลา (มา)" : "ตรวจสอบเพื่อลงทะเบียน";
                     btnColor = "bg-green-600 hover:bg-green-700 text-white";
                 } else if (now > c.regEnd && now <= lateEnd) {
-                    formVisible = true;
                     if (c.requireCheckout) {
                         if (now < c.checkoutStart) {
-                            panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-purple-100 text-purple-800 border-2 border-purple-500 shadow-md flex flex-col items-center gap-2";
-                            let diff = c.checkoutStart - now;
-                            let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-                            panel.innerHTML = `<span class="text-xl"><i class="fa-solid fa-person-running animate-bounce"></i> เปิดระบบลงเวลา (มาสาย)</span><br><span class="text-xs">จะเปิดให้ลงเวลากลับในอีก <span class="digital-clock text-purple-700 font-bold ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></span>`;
-                            btnText = "ลงทะเบียนมาสาย";
-                            btnColor = "bg-purple-600 hover:bg-purple-700 text-white";
+                            if (lateModeActive) {
+                                formVisible = true;
+                                btnText = "ตรวจสอบข้อมูล (มาสาย)";
+                                btnColor = "bg-purple-600 hover:bg-purple-700 text-white";
+                                panel.innerHTML = `<span class="text-xl text-purple-700"><i class="fa-solid fa-person-running animate-bounce"></i> กำลังทำรายการลงทะเบียนมาสาย</span>`;
+                                panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-purple-100 text-purple-800 border-2 border-purple-500 shadow-md flex flex-col justify-center items-center gap-2";
+                                extraPanel.innerHTML = `<button onclick="deactivateLateMode()" class="w-full mt-2 text-sm text-gray-500 underline text-center block">ยกเลิก</button>`;
+                            } else {
+                                let diff = c.checkoutStart - now;
+                                let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                                panel.className = "text-center p-5 rounded-xl font-bold mb-5 bg-indigo-100 text-indigo-800 border-2 border-indigo-400 shadow-md";
+                                panel.innerHTML = `<i class="fa-solid fa-clock-rotate-left text-3xl mb-2 text-indigo-600"></i><br> <span class="text-sm">หมดเวลาลงเวลามา<br>จะเปิดให้ลงเวลา (ขากลับ) ในอีก</span><br><div class="flex justify-center gap-2 mt-3"><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(h).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(m).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(s).padStart(2,'0')}</div></div>`;
+                                
+                                extraPanel.innerHTML = `<button onclick="activateLateMode()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200"><i class="fa-solid fa-person-running"></i> ยอมรับและลงทะเบียนมาสาย</button>`;
+                            }
                         } else {
-                            let diff = c.checkoutEnd - now;
-                            let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-                            panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-blue-100 text-blue-800 border-2 border-blue-500 shadow-md flex flex-col justify-center items-center gap-2";
-                            panel.innerHTML = `<span class="text-xl text-blue-700"><i class="fa-solid fa-door-open animate-bounce"></i> เปิดระบบลงเวลา (กลับ/มาสาย)</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
-                            btnText = "ตรวจสอบเพื่อลงเวลา (กลับ/มาสาย)";
-                            btnColor = "bg-blue-600 hover:bg-blue-700 text-white";
+                            if (lateModeActive) {
+                                formVisible = true;
+                                btnText = "ตรวจสอบข้อมูล (มาสาย)";
+                                btnColor = "bg-purple-600 hover:bg-purple-700 text-white";
+                                panel.innerHTML = `<span class="text-xl text-purple-700"><i class="fa-solid fa-person-running animate-bounce"></i> กำลังทำรายการลงทะเบียนมาสาย</span>`;
+                                panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-purple-100 text-purple-800 border-2 border-purple-500 shadow-md flex flex-col justify-center items-center gap-2";
+                                extraPanel.innerHTML = `<button onclick="deactivateLateMode()" class="w-full mt-2 text-sm text-gray-500 underline text-center block">ยกเลิก กลับไปหน้าลงเวลากลับ</button>`;
+                            } else {
+                                formVisible = true;
+                                btnText = "ตรวจสอบเพื่อลงเวลา (กลับ)";
+                                btnColor = "bg-blue-600 hover:bg-blue-700 text-white";
+                                let diff = c.checkoutEnd - now;
+                                let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                                panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-blue-100 text-blue-800 border-2 border-blue-500 shadow-md flex flex-col justify-center items-center gap-2";
+                                panel.innerHTML = `<span class="text-xl text-blue-700"><i class="fa-solid fa-door-open animate-bounce"></i> เปิดระบบลงเวลา (ขากลับ) แล้ว</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
+                                
+                                extraPanel.innerHTML = `<button onclick="activateLateMode()" class="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold py-2 rounded-xl border border-purple-300 shadow-sm transition duration-200 text-sm mt-2"><i class="fa-solid fa-person-running"></i> ลงทะเบียนมาสาย (สำหรับผู้ที่พลาดลงขามา)</button>`;
+                            }
                         }
                     } else {
-                        let diff = lateEnd - now;
-                        let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-                        panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-purple-100 text-purple-800 border-2 border-purple-500 shadow-md flex flex-col justify-center items-center gap-2";
-                        panel.innerHTML = `<span class="text-xl"><i class="fa-solid fa-person-running animate-bounce"></i> เปิดระบบลงทะเบียน (สาย)</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
-                        btnText = "ลงทะเบียนมาสาย";
-                        btnColor = "bg-purple-600 hover:bg-purple-700 text-white";
+                        if (lateModeActive) {
+                            formVisible = true;
+                            btnText = "ตรวจสอบข้อมูล (มาสาย)";
+                            btnColor = "bg-purple-600 hover:bg-purple-700 text-white";
+                            panel.innerHTML = `<span class="text-xl text-purple-700"><i class="fa-solid fa-person-running animate-bounce"></i> กำลังทำรายการลงทะเบียนมาสาย</span>`;
+                            panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-purple-100 text-purple-800 border-2 border-purple-500 shadow-md flex flex-col justify-center items-center gap-2";
+                            extraPanel.innerHTML = `<button onclick="deactivateLateMode()" class="w-full mt-2 text-sm text-gray-500 underline text-center block">ยกเลิก</button>`;
+                        } else {
+                            let diff = lateEnd - now;
+                            let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                            panel.className = "text-center p-5 rounded-xl font-bold mb-5 bg-gray-200 text-gray-700 border-2 border-gray-400 shadow-inner";
+                            panel.innerHTML = `<i class="fa-solid fa-door-closed text-4xl mb-2 text-gray-500"></i><br><span class="text-lg">หมดเวลาลงทะเบียนปกติแล้ว</span><br><span class="text-sm text-purple-600 mt-2 block">เปิดผ่อนผันให้ลงทะเบียนสายได้อีก ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
+                            extraPanel.innerHTML = `<button onclick="activateLateMode()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200"><i class="fa-solid fa-person-running"></i> ยอมรับและลงทะเบียนมาสาย</button>`;
+                            formVisible = false;
+                        }
                     }
                 } else {
                     panel.className = "text-center p-5 rounded-xl font-bold mb-5 bg-gray-200 text-gray-700 border-2 border-gray-400 shadow-inner";
@@ -765,7 +810,7 @@
                             noteEl.parentElement.className = "mt-2 bg-blue-100 border border-blue-300 text-blue-800 px-3 py-2 rounded font-bold text-center";
                             const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600');
                             if(btnCamSub) {
-                                btnCamSub.className = "bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg";
+                                btnCamSub.className = "bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg";
                                 btnCamSub.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล';
                             }
                         } else if(res.phase === "LATE_CHECKIN") {
@@ -777,7 +822,7 @@
                             }
                         } else {
                             noteEl.parentElement.className = "mt-2 bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-2 rounded font-bold text-center";
-                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600');
+                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600, #preview-container button.bg-blue-600');
                             if(btnCamSub) {
                                 btnCamSub.className = "bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg";
                                 btnCamSub.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล';
