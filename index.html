@@ -29,11 +29,12 @@
         .filter-btn.active { border-bottom: 4px solid; filter: brightness(0.9); }
         .filter-btn-all.active { border-color: #3b82f6; } 
         .filter-btn-join.active { border-color: #16a34a; } 
+        .filter-btn-join-late.active { border-color: #9333ea; }
         .filter-btn-complete.active { border-color: #059669; } 
+        .filter-btn-complete-late.active { border-color: #7e22ce; }
         .filter-btn-wait.active { border-color: #eab308; } 
-        .filter-btn-miss.active { border-color: #dc2626; } 
-        .filter-btn-late.active { border-color: #9333ea; }
         .filter-btn-leave.active { border-color: #db2777; } 
+        .filter-btn-miss.active { border-color: #dc2626; } 
     </style>
 </head>
 <body class="text-gray-800" onload="initApp()">
@@ -174,7 +175,7 @@
                 <div class="bg-gray-100 p-3 rounded-lg border border-gray-200"><p class="text-xs text-gray-500 font-bold">ทั้งหมด</p><p id="pub-stat-total" class="text-xl font-bold text-gray-800">-</p></div>
                 <div class="bg-green-50 p-3 rounded-lg border border-green-200"><p class="text-xs text-green-600 font-bold">เข้าร่วม (ปกติ)</p><p id="pub-stat-joined" class="text-xl font-bold text-green-700">-</p></div>
                 <div class="bg-purple-50 p-3 rounded-lg border border-purple-200"><p class="text-xs text-purple-600 font-bold">เข้าร่วม (สาย)</p><p id="pub-stat-late" class="text-xl font-bold text-purple-700">-</p></div>
-                <div class="bg-red-50 p-3 rounded-lg border border-red-200"><p class="text-xs text-red-600 font-bold">ยังไม่เข้าร่วม</p><p id="pub-stat-missing" class="text-xl font-bold text-red-700">-</p></div>
+                <div class="bg-red-50 p-3 rounded-lg border border-red-200"><p class="text-xs text-red-600 font-bold" id="pub-stat-missing-label">ยังไม่เข้าร่วม</p><p id="pub-stat-missing" class="text-xl font-bold text-red-700">-</p></div>
                 <div class="col-span-2 md:col-span-4 bg-gray-200 h-4 rounded-full overflow-hidden mt-1 shadow-inner relative">
                     <div id="pub-stat-progress" class="bg-green-500 h-full transition-all duration-500 w-0"></div>
                     <p id="pub-stat-percent" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-800 drop-shadow-sm"></p>
@@ -184,19 +185,21 @@
             <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
                 <button onclick="setQuickFilter('PUBLIC', '')" id="pub-btn-all" class="filter-btn filter-btn-all active pub-filter-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-users"></i> ทั้งหมด</button>
                 <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วม')" id="pub-btn-join" class="filter-btn filter-btn-join pub-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
+                <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วม (สาย)')" id="pub-btn-join-late" class="filter-btn filter-btn-join-late pub-filter-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-bold border border-purple-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-person-running"></i> เฉพาะเข้าร่วมแล้ว (สาย)</button>
                 <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วมสมบูรณ์')" id="pub-btn-complete" class="filter-btn filter-btn-complete pub-filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์</button>
+                <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วมสมบูรณ์ (สาย)')" id="pub-btn-complete-late" class="filter-btn filter-btn-complete-late pub-filter-btn bg-fuchsia-100 text-fuchsia-800 px-4 py-2 rounded-lg text-sm font-bold border border-fuchsia-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์ (สาย)</button>
                 <button onclick="setQuickFilter('PUBLIC', 'รอลงเวลากลับ')" id="pub-btn-wait" class="filter-btn filter-btn-wait pub-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
-                <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วมสาย')" id="pub-btn-late" class="filter-btn filter-btn-late pub-filter-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-bold border border-purple-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-person-running"></i> เฉพาะเข้าร่วมสาย</button>
                 <button onclick="setQuickFilter('PUBLIC', 'ลา/ภารกิจ/อื่นๆ')" id="pub-btn-leave" class="filter-btn filter-btn-leave pub-filter-btn bg-pink-100 text-pink-800 px-4 py-2 rounded-lg text-sm font-bold border border-pink-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-file-signature"></i> ลา/ภารกิจ/อื่นๆ</button>
-                <button onclick="setQuickFilter('PUBLIC', 'ไม่เข้าร่วม')" id="pub-btn-miss" class="filter-btn filter-btn-miss pub-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
+                <button onclick="setQuickFilter('PUBLIC', 'ไม่เข้าร่วม')" id="pub-btn-miss" class="filter-btn filter-btn-miss pub-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> <span id="pub-btn-miss-text">เฉพาะยังไม่เข้าร่วม</span></button>
             </div>
             <select id="pub-filter-status" class="hidden">
                 <option value=""></option>
                 <option value="เข้าร่วม"></option>
+                <option value="เข้าร่วม (สาย)"></option>
                 <option value="เข้าร่วมสมบูรณ์"></option>
+                <option value="เข้าร่วมสมบูรณ์ (สาย)"></option>
                 <option value="รอลงเวลากลับ"></option>
                 <option value="ไม่ลงเวลากลับ"></option>
-                <option value="เข้าร่วมสาย"></option>
                 <option value="ลา/ภารกิจ/อื่นๆ"></option>
                 <option value="ไม่เข้าร่วม"></option>
             </select>
@@ -344,7 +347,7 @@
                     <div class="bg-gray-100 p-3 rounded-lg border border-gray-200"><p class="text-xs text-gray-500 font-bold">ทั้งหมด</p><p id="adm-stat-total" class="text-xl font-bold text-gray-800">-</p></div>
                     <div class="bg-green-50 p-3 rounded-lg border border-green-200"><p class="text-xs text-green-600 font-bold">เข้าร่วม (ปกติ)</p><p id="adm-stat-joined" class="text-xl font-bold text-green-700">-</p></div>
                     <div class="bg-purple-50 p-3 rounded-lg border border-purple-200"><p class="text-xs text-purple-600 font-bold">เข้าร่วม (สาย)</p><p id="adm-stat-late" class="text-xl font-bold text-purple-700">-</p></div>
-                    <div class="bg-red-50 p-3 rounded-lg border border-red-200"><p class="text-xs text-red-600 font-bold">ยังไม่เข้าร่วม</p><p id="adm-stat-missing" class="text-xl font-bold text-red-700">-</p></div>
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-200"><p class="text-xs text-red-600 font-bold" id="adm-stat-missing-label">ยังไม่เข้าร่วม</p><p id="adm-stat-missing" class="text-xl font-bold text-red-700">-</p></div>
                     <div class="col-span-2 md:col-span-4 bg-gray-200 h-4 rounded-full overflow-hidden mt-1 shadow-inner relative"><div id="adm-stat-progress" class="bg-green-500 h-full transition-all duration-500 w-0"></div><p id="adm-stat-percent" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-800 drop-shadow-sm"></p></div>
                 </div>
                 <div class="glass-card p-5 shadow-md">
@@ -352,19 +355,21 @@
                         <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
                             <button onclick="setQuickFilter('ADMIN', '')" id="adm-btn-all" class="filter-btn filter-btn-all active adm-filter-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-users"></i> ทั้งหมด</button>
                             <button onclick="setQuickFilter('ADMIN', 'เข้าร่วม')" id="adm-btn-join" class="filter-btn filter-btn-join adm-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
+                            <button onclick="setQuickFilter('ADMIN', 'เข้าร่วม (สาย)')" id="adm-btn-join-late" class="filter-btn filter-btn-join-late adm-filter-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-bold border border-purple-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-person-running"></i> เฉพาะเข้าร่วมแล้ว (สาย)</button>
                             <button onclick="setQuickFilter('ADMIN', 'เข้าร่วมสมบูรณ์')" id="adm-btn-complete" class="filter-btn filter-btn-complete adm-filter-btn bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์</button>
+                            <button onclick="setQuickFilter('ADMIN', 'เข้าร่วมสมบูรณ์ (สาย)')" id="adm-btn-complete-late" class="filter-btn filter-btn-complete-late adm-filter-btn bg-fuchsia-100 text-fuchsia-800 px-4 py-2 rounded-lg text-sm font-bold border border-fuchsia-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-check-double"></i> เฉพาะเข้าร่วมสมบูรณ์ (สาย)</button>
                             <button onclick="setQuickFilter('ADMIN', 'รอลงเวลากลับ')" id="adm-btn-wait" class="filter-btn filter-btn-wait adm-filter-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-bold border border-yellow-200 whitespace-nowrap shadow-sm hidden"><i class="fa-solid fa-clock"></i> เฉพาะรอลงเวลากลับ</button>
-                            <button onclick="setQuickFilter('ADMIN', 'เข้าร่วมสาย')" id="adm-btn-late" class="filter-btn filter-btn-late adm-filter-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-bold border border-purple-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-person-running"></i> เฉพาะเข้าร่วมสาย</button>
                             <button onclick="setQuickFilter('ADMIN', 'ลา/ภารกิจ/อื่นๆ')" id="adm-btn-leave" class="filter-btn filter-btn-leave adm-filter-btn bg-pink-100 text-pink-800 px-4 py-2 rounded-lg text-sm font-bold border border-pink-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-file-signature"></i> ลา/ภารกิจ/อื่นๆ</button>
-                            <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> เฉพาะยังไม่เข้าร่วม</button>
+                            <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> <span id="adm-btn-miss-text">เฉพาะยังไม่เข้าร่วม</span></button>
                         </div>
                         <select id="adm-filter-status" class="hidden">
                             <option value=""></option>
                             <option value="เข้าร่วม"></option>
+                            <option value="เข้าร่วม (สาย)"></option>
                             <option value="เข้าร่วมสมบูรณ์"></option>
+                            <option value="เข้าร่วมสมบูรณ์ (สาย)"></option>
                             <option value="รอลงเวลากลับ"></option>
                             <option value="ไม่ลงเวลากลับ"></option>
-                            <option value="เข้าร่วมสาย"></option>
                             <option value="ลา/ภารกิจ/อื่นๆ"></option>
                             <option value="ไม่เข้าร่วม"></option>
                         </select>
@@ -1401,10 +1406,15 @@
             
             const btnWait = document.getElementById(`${prefix}-btn-wait`);
             const btnComplete = document.getElementById(`${prefix}-btn-complete`);
-            if (btnWait && btnComplete) {
+            const btnCompleteLate = document.getElementById(`${prefix}-btn-complete-late`);
+            const btnJoinLate = document.getElementById(`${prefix}-btn-join-late`);
+            
+            if (btnWait && btnComplete && btnCompleteLate && btnJoinLate) {
                 if (dashboardActivityInfo.requireCheckout) {
                     btnWait.classList.remove('hidden');
                     btnComplete.classList.remove('hidden');
+                    btnCompleteLate.classList.remove('hidden');
+                    btnJoinLate.classList.remove('hidden');
                     const now = Date.now();
                     if (dashboardActivityInfo.checkoutEnd > 0 && now > dashboardActivityInfo.checkoutEnd) {
                         btnWait.innerHTML = '<i class="fa-solid fa-user-clock"></i> เฉพาะไม่ลงเวลากลับ';
@@ -1418,6 +1428,19 @@
                 } else {
                     btnWait.classList.add('hidden');
                     btnComplete.classList.add('hidden');
+                    btnCompleteLate.classList.add('hidden');
+                    btnJoinLate.classList.remove('hidden');
+                }
+            }
+            
+            const btnMiss = document.getElementById(`${prefix}-btn-miss-text`);
+            const now = Date.now();
+            let lateEnd = dashboardActivityInfo.requireCheckout ? dashboardActivityInfo.checkoutEnd : (dashboardActivityInfo.regEnd + 3600000);
+            if (btnMiss) {
+                if(now > lateEnd && lateEnd > 0) {
+                    btnMiss.innerText = 'เฉพาะไม่เข้าร่วม';
+                } else {
+                    btnMiss.innerText = 'เฉพาะยังไม่เข้าร่วม';
                 }
             }
 
@@ -1478,7 +1501,9 @@
             
             const btnAll = document.getElementById(`${prefix}-btn-all`); 
             const btnJoin = document.getElementById(`${prefix}-btn-join`); 
+            const btnJoinLate = document.getElementById(`${prefix}-btn-join-late`);
             const btnComplete = document.getElementById(`${prefix}-btn-complete`); 
+            const btnCompleteLate = document.getElementById(`${prefix}-btn-complete-late`);
             const btnMiss = document.getElementById(`${prefix}-btn-miss`); 
             const btnWait = document.getElementById(`${prefix}-btn-wait`);
             const btnLate = document.getElementById(`${prefix}-btn-late`);
@@ -1486,7 +1511,9 @@
 
             if(statusVal === '' && btnAll) btnAll.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วม' && btnJoin) btnJoin.classList.add('active', 'border-b-4');
+            else if(statusVal === 'เข้าร่วม (สาย)' && btnJoinLate) btnJoinLate.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วมสมบูรณ์' && btnComplete) btnComplete.classList.add('active', 'border-b-4');
+            else if(statusVal === 'เข้าร่วมสมบูรณ์ (สาย)' && btnCompleteLate) btnCompleteLate.classList.add('active', 'border-b-4');
             else if((statusVal === 'รอลงเวลากลับ' || statusVal === 'ไม่ลงเวลากลับ') && btnWait) btnWait.classList.add('active', 'border-b-4');
             else if(statusVal === 'เข้าร่วมสาย' && btnLate) btnLate.classList.add('active', 'border-b-4');
             else if(statusVal === 'ลา/ภารกิจ/อื่นๆ' && btnLeave) btnLeave.classList.add('active', 'border-b-4');
@@ -1504,7 +1531,7 @@
 
                 const standardStatuses = ['เข้าร่วม', 'เข้าร่วมสมบูรณ์', 'รอลงเวลากลับ', 'ไม่ลงเวลากลับ', 'ไม่เข้าร่วม'];
                 const stdJoined = ['เข้าร่วม', 'รอลงเวลากลับ', 'ไม่ลงเวลากลับ', 'เข้าร่วมสมบูรณ์'];
-                const lateJoined = ['เข้าร่วมสายเกินเวลาลงทะเบียน', 'รอลงเวลากลับ (สาย)', 'ไม่ลงเวลากลับ (สาย)', 'เข้าร่วมสมบูรณ์ (สาย)'];
+                const lateJoined = ['เข้าร่วมสายเกินเวลาลงทะเบียน', 'รอลงเวลากลับ (สาย)', 'ไม่ลงเวลากลับ (สาย)', 'เข้าร่วมสมบูรณ์ (สาย)', 'เข้าร่วม (สาย)'];
 
                 const filtered = dashboardDataRaw.filter(d => { 
                     const matchSearch = (d.name.toLowerCase().includes(searchTerm) || (mode==='ADMIN' && d.cid.includes(searchTerm))); 
@@ -1513,15 +1540,19 @@
                     if (!s) {
                         matchStatus = true;
                     } else if (s === 'เข้าร่วม') {
-                        matchStatus = stdJoined.includes(d.status);
+                        matchStatus = (d.status === 'เข้าร่วม' || d.status === 'รอลงเวลากลับ' || d.status === 'ไม่ลงเวลากลับ');
+                    } else if (s === 'เข้าร่วม (สาย)') {
+                        matchStatus = (d.status === 'เข้าร่วม (สาย)' || d.status === 'รอลงเวลากลับ (สาย)' || d.status === 'ไม่ลงเวลากลับ (สาย)' || d.status === 'เข้าร่วมสายเกินเวลาลงทะเบียน');
                     } else if (s === 'รอลงเวลากลับ' || s === 'ไม่ลงเวลากลับ') {
-                        matchStatus = (d.status === 'รอลงเวลากลับ' || d.status === 'รอลงเวลากลับ (สาย)' || d.status === 'ไม่ลงเวลากลับ' || d.status === 'ไม่ลงเวลากลับ (สาย)');
+                        matchStatus = (d.status === s || d.status === s + ' (สาย)');
                     } else if (s === 'ไม่เข้าร่วม') {
                         matchStatus = (d.status === 'ไม่เข้าร่วม');
                     } else if (s === 'เข้าร่วมสมบูรณ์') {
-                        matchStatus = (d.status === 'เข้าร่วมสมบูรณ์' || d.status === 'เข้าร่วมสมบูรณ์ (สาย)');
+                        matchStatus = (d.status === 'เข้าร่วมสมบูรณ์');
+                    } else if (s === 'เข้าร่วมสมบูรณ์ (สาย)') {
+                        matchStatus = (d.status === 'เข้าร่วมสมบูรณ์ (สาย)');
                     } else if (s === 'เข้าร่วมสาย') {
-                        matchStatus = lateJoined.includes(d.status);
+                        matchStatus = lateJoined.includes(d.status) && d.status !== 'ไม่เข้าร่วม';
                     } else if (s === 'ลา/ภารกิจ/อื่นๆ') {
                         matchStatus = (!stdJoined.includes(d.status) && !lateJoined.includes(d.status) && d.status !== 'ไม่เข้าร่วม');
                     }
@@ -1585,7 +1616,7 @@
                     
                     if (lateJoined.includes(d.status)) {
                         statClass = 'text-purple-600 font-bold';
-                        if(dispStatus === 'เข้าร่วมสายเกินเวลาลงทะเบียน' || dispStatus === 'รอลงเวลากลับ (สาย)' || dispStatus === 'ไม่ลงเวลากลับ (สาย)') dispStatus = 'เข้าร่วมสาย';
+                        if(dispStatus === 'เข้าร่วมสายเกินเวลาลงทะเบียน' || dispStatus === 'เข้าร่วม (สาย)' || dispStatus === 'รอลงเวลากลับ (สาย)' || dispStatus === 'ไม่ลงเวลากลับ (สาย)') dispStatus = 'เข้าร่วมสาย';
                     } else if (stdJoined.includes(d.status)) {
                         if (d.status === 'รอลงเวลากลับ') statClass = 'text-yellow-600';
                         else if (d.status === 'ไม่ลงเวลากลับ') statClass = 'text-orange-500';
