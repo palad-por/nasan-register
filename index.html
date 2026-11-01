@@ -362,7 +362,7 @@
                             <button onclick="setQuickFilter('ADMIN', 'ลา/ภารกิจ/อื่นๆ')" id="adm-btn-leave" class="filter-btn filter-btn-leave adm-filter-btn bg-pink-100 text-pink-800 px-4 py-2 rounded-lg text-sm font-bold border border-pink-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-file-signature"></i> ลา/ภารกิจ/อื่นๆ</button>
                             <button onclick="setQuickFilter('ADMIN', 'ไม่เข้าร่วม')" id="adm-btn-miss" class="filter-btn filter-btn-miss adm-filter-btn bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-bold border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> <span id="adm-btn-miss-text">เฉพาะยังไม่เข้าร่วม</span></button>
                         </div>
-                        <select id="adm-filter-status" class="hidden">
+                        <select id="adm-filter-status" class="hidden" style="display:none;">
                             <option value=""></option>
                             <option value="เข้าร่วม"></option>
                             <option value="เข้าร่วม (สาย)"></option>
@@ -797,7 +797,7 @@
             if(cid.length !== 13) return Alert.fire('ข้อมูลไม่ครบ', 'กรุณากรอกเลขบัตร 13 หลัก', 'warning');
             
             showLoading("กำลังตรวจสอบข้อมูล...");
-            callServer('verifyUser', { cid: cid, actId: currentActivity.id })
+            callServer('verifyUser', { cid: cid, actId: currentActivity.id, isLateMode: lateModeActive })
                 .then(res => {
                     hideLoading();
                     if(!res.success) return Alert.fire('ไม่สามารถลงทะเบียนได้', res.message, 'error');
