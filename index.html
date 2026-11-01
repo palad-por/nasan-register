@@ -1434,14 +1434,16 @@
             }
             
             const btnMiss = document.getElementById(`${prefix}-btn-miss-text`);
+            const statMissLabel = document.getElementById(`${prefix}-stat-missing-label`);
             const now = Date.now();
             let lateEnd = dashboardActivityInfo.requireCheckout ? dashboardActivityInfo.checkoutEnd : (dashboardActivityInfo.regEnd + 3600000);
-            if (btnMiss) {
-                if(now > lateEnd && lateEnd > 0) {
-                    btnMiss.innerText = 'เฉพาะไม่เข้าร่วม';
-                } else {
-                    btnMiss.innerText = 'เฉพาะยังไม่เข้าร่วม';
-                }
+            
+            if(now > lateEnd && lateEnd > 0) {
+                if (btnMiss) btnMiss.innerText = 'เฉพาะไม่เข้าร่วม';
+                if (statMissLabel) statMissLabel.innerText = 'ไม่เข้าร่วม';
+            } else {
+                if (btnMiss) btnMiss.innerText = 'เฉพาะยังไม่เข้าร่วม';
+                if (statMissLabel) statMissLabel.innerText = 'ยังไม่เข้าร่วม';
             }
 
             if(mode === 'ADMIN') {
