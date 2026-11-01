@@ -142,7 +142,7 @@
                 <img id="photo-preview" class="border-4 border-green-500 shadow-md rounded-xl w-full">
                 <div class="grid grid-cols-2 gap-3 mt-4">
                     <button onclick="document.getElementById('camera-input').click()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-xl"><i class="fa-solid fa-rotate-right"></i> ถ่ายใหม่</button>
-                    <button onclick="submitData()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg"><i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล</button>
+                    <button onclick="submitData()" id="btn-submit-data" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg"><i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล</button>
                 </div>
             </div>
             <button onclick="switchView('view-home')" class="w-full mt-6 text-sm text-gray-500 underline text-center block">ยกเลิกและกลับหน้าแรก</button>
@@ -168,15 +168,18 @@
                     <p class="md:col-span-2"><i class="fa-solid fa-hourglass-start text-blue-600 w-6 text-base"></i> เวลาลงทะเบียน: <span id="pub-info-reg" class="text-red-600 font-bold tracking-wide"></span></p>
                 </div>
             </div>
-            <div id="pub-stats-container" class="hidden grid grid-cols-3 gap-2 mb-4 text-center">
-                <div class="bg-gray-100 p-3 rounded-lg border border-gray-200"><p class="text-xs text-gray-500 font-bold">เป้าหมายทั้งหมด</p><p id="pub-stat-total" class="text-xl font-bold text-gray-800">-</p></div>
-                <div class="bg-green-50 p-3 rounded-lg border border-green-200"><p class="text-xs text-green-600 font-bold">เข้าร่วมแล้ว</p><p id="pub-stat-joined" class="text-xl font-bold text-green-700">-</p></div>
+            
+            <div id="pub-stats-container" class="hidden grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 text-center">
+                <div class="bg-gray-100 p-3 rounded-lg border border-gray-200"><p class="text-xs text-gray-500 font-bold">ทั้งหมด</p><p id="pub-stat-total" class="text-xl font-bold text-gray-800">-</p></div>
+                <div class="bg-green-50 p-3 rounded-lg border border-green-200"><p class="text-xs text-green-600 font-bold">เข้าร่วม (ปกติ)</p><p id="pub-stat-joined" class="text-xl font-bold text-green-700">-</p></div>
+                <div class="bg-purple-50 p-3 rounded-lg border border-purple-200"><p class="text-xs text-purple-600 font-bold">เข้าร่วม (สาย)</p><p id="pub-stat-late" class="text-xl font-bold text-purple-700">-</p></div>
                 <div class="bg-red-50 p-3 rounded-lg border border-red-200"><p class="text-xs text-red-600 font-bold">ยังไม่เข้าร่วม</p><p id="pub-stat-missing" class="text-xl font-bold text-red-700">-</p></div>
-                <div class="col-span-3 bg-gray-200 h-4 rounded-full overflow-hidden mt-1 shadow-inner relative">
+                <div class="col-span-2 md:col-span-4 bg-gray-200 h-4 rounded-full overflow-hidden mt-1 shadow-inner relative">
                     <div id="pub-stat-progress" class="bg-green-500 h-full transition-all duration-500 w-0"></div>
                     <p id="pub-stat-percent" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-800 drop-shadow-sm"></p>
                 </div>
             </div>
+            
             <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
                 <button onclick="setQuickFilter('PUBLIC', '')" id="pub-btn-all" class="filter-btn filter-btn-all active pub-filter-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-users"></i> ทั้งหมด</button>
                 <button onclick="setQuickFilter('PUBLIC', 'เข้าร่วม')" id="pub-btn-join" class="filter-btn filter-btn-join pub-filter-btn bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> เฉพาะเข้าร่วมแล้ว</button>
@@ -336,11 +339,15 @@
                     </div>
                     <p class="mt-3 text-sm text-red-600 bg-red-50 inline-block px-4 py-1 rounded-full no-print">เวลาลงทะเบียน: <span id="adm-info-reg" class="font-bold tracking-wide"></span></p>
                 </div>
-                <div id="adm-stats-container" class="hidden grid grid-cols-3 gap-2 mb-4 text-center no-print">
-                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200"><p class="text-xs text-gray-500 font-bold">เป้าหมายทั้งหมด</p><p id="adm-stat-total" class="text-xl font-bold text-gray-800">-</p></div>
-                    <div class="bg-green-50 p-3 rounded-lg border border-green-200"><p class="text-xs text-green-600 font-bold">เข้าร่วมแล้ว</p><p id="adm-stat-joined" class="text-xl font-bold text-green-700">-</p></div>
+                <div id="adm-stats-container" class="hidden grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 text-center no-print">
+                    <div class="bg-gray-100 p-3 rounded-lg border border-gray-200"><p class="text-xs text-gray-500 font-bold">ทั้งหมด</p><p id="adm-stat-total" class="text-xl font-bold text-gray-800">-</p></div>
+                    <div class="bg-green-50 p-3 rounded-lg border border-green-200"><p class="text-xs text-green-600 font-bold">เข้าร่วม (ปกติ)</p><p id="adm-stat-joined" class="text-xl font-bold text-green-700">-</p></div>
+                    <div class="bg-purple-50 p-3 rounded-lg border border-purple-200"><p class="text-xs text-purple-600 font-bold">เข้าร่วม (สาย)</p><p id="adm-stat-late" class="text-xl font-bold text-purple-700">-</p></div>
                     <div class="bg-red-50 p-3 rounded-lg border border-red-200"><p class="text-xs text-red-600 font-bold">ยังไม่เข้าร่วม</p><p id="adm-stat-missing" class="text-xl font-bold text-red-700">-</p></div>
-                    <div class="col-span-3 bg-gray-200 h-4 rounded-full overflow-hidden mt-1 shadow-inner relative"><div id="adm-stat-progress" class="bg-green-500 h-full transition-all duration-500 w-0"></div><p id="adm-stat-percent" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-800 drop-shadow-sm"></p></div>
+                    <div class="col-span-2 md:col-span-4 bg-gray-200 h-4 rounded-full overflow-hidden mt-1 shadow-inner relative">
+                        <div id="adm-stat-progress" class="bg-green-500 h-full transition-all duration-500 w-0"></div>
+                        <p id="adm-stat-percent" class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-800 drop-shadow-sm"></p>
+                    </div>
                 </div>
                 <div class="glass-card p-5 shadow-md">
                     <div class="no-print">
@@ -666,6 +673,8 @@
                 let btnText = "ลงทะเบียน";
                 let btnColor = "bg-green-600 hover:bg-green-700";
 
+                let lateEnd = c.requireCheckout ? c.checkoutEnd : (c.regEnd + 3600000); // ช่วงเวลาผ่อนผัน
+
                 if (now < c.regStart) {
                     let diff = c.regStart - now;
                     let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
@@ -681,21 +690,33 @@
                     panel.innerHTML = `<span class="text-xl text-green-700"><i class="fa-solid fa-door-open animate-bounce"></i> ${titleStr}</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
                     formVisible = true;
                     btnText = c.requireCheckout ? "ตรวจสอบเพื่อลงเวลา (มา)" : "ตรวจสอบเพื่อลงทะเบียน";
-                    btnColor = "bg-green-600 hover:bg-green-700";
-                } else if (c.requireCheckout && now > c.regEnd && now < c.checkoutStart) {
-                    let diff = c.checkoutStart - now;
-                    let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-                    panel.className = "text-center p-5 rounded-xl font-bold mb-5 bg-indigo-100 text-indigo-800 border-2 border-indigo-400 shadow-md";
-                    panel.innerHTML = `<i class="fa-solid fa-clock-rotate-left text-3xl mb-2 text-indigo-600"></i><br> <span class="text-sm">หมดเวลาลงเวลามา<br>จะเปิดให้ลงเวลา (ขากลับ) ในอีก</span><br><div class="flex justify-center gap-2 mt-3"><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(h).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(m).padStart(2,'0')}</div><span class="text-3xl mt-2">:</span><div class="bg-white text-red-600 border border-red-200 rounded-lg px-4 py-2 text-4xl digital-clock shadow-inner">${String(s).padStart(2,'0')}</div></div>`;
-                    formVisible = false;
-                } else if (c.requireCheckout && now >= c.checkoutStart && now <= c.checkoutEnd) {
-                    let diff = c.checkoutEnd - now;
-                    let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-                    panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-blue-100 text-blue-800 border-2 border-blue-500 shadow-md flex flex-col justify-center items-center gap-2";
-                    panel.innerHTML = `<span class="text-xl text-blue-700"><i class="fa-solid fa-door-open animate-bounce"></i> เปิดระบบลงเวลา (ขากลับ) แล้ว</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
+                    btnColor = "bg-green-600 hover:bg-green-700 text-white";
+                } else if (now > c.regEnd && now <= lateEnd) {
                     formVisible = true;
-                    btnText = "ตรวจสอบเพื่อลงเวลา (กลับ)";
-                    btnColor = "bg-blue-600 hover:bg-blue-700";
+                    if (c.requireCheckout) {
+                        if (now < c.checkoutStart) {
+                            panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-purple-100 text-purple-800 border-2 border-purple-500 shadow-md flex flex-col items-center gap-2";
+                            let diff = c.checkoutStart - now;
+                            let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                            panel.innerHTML = `<span class="text-xl"><i class="fa-solid fa-person-running animate-bounce"></i> เปิดระบบลงเวลา (มาสาย)</span><br><span class="text-xs">จะเปิดให้ลงเวลากลับในอีก <span class="digital-clock text-purple-700 font-bold ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></span>`;
+                            btnText = "ลงทะเบียนมาสาย";
+                            btnColor = "bg-purple-600 hover:bg-purple-700 text-white";
+                        } else {
+                            let diff = c.checkoutEnd - now;
+                            let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                            panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-blue-100 text-blue-800 border-2 border-blue-500 shadow-md flex flex-col justify-center items-center gap-2";
+                            panel.innerHTML = `<span class="text-xl text-blue-700"><i class="fa-solid fa-door-open animate-bounce"></i> เปิดระบบลงเวลา (กลับ/มาสาย)</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
+                            btnText = "ตรวจสอบเพื่อลงเวลา (กลับ/มาสาย)";
+                            btnColor = "bg-blue-600 hover:bg-blue-700 text-white";
+                        }
+                    } else {
+                        let diff = lateEnd - now;
+                        let h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                        panel.className = "text-center p-4 rounded-xl font-bold mb-5 bg-purple-100 text-purple-800 border-2 border-purple-500 shadow-md flex flex-col justify-center items-center gap-2";
+                        panel.innerHTML = `<span class="text-xl"><i class="fa-solid fa-person-running animate-bounce"></i> เปิดระบบลงทะเบียน (สาย)</span><div class="flex items-center gap-2 text-sm bg-white px-4 py-1.5 rounded-full text-red-600 border border-red-200 shadow-sm">ปิดใน <span class="digital-clock text-xl text-red-600 ml-1">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span></div>`;
+                        btnText = "ลงทะเบียนมาสาย";
+                        btnColor = "bg-purple-600 hover:bg-purple-700 text-white";
+                    }
                 } else {
                     panel.className = "text-center p-5 rounded-xl font-bold mb-5 bg-gray-200 text-gray-700 border-2 border-gray-400 shadow-inner";
                     panel.innerHTML = `<i class="fa-solid fa-door-closed text-4xl mb-2 text-gray-500"></i><br><span class="text-lg">ปิดระบบลงทะเบียนแล้ว</span>`;
@@ -707,7 +728,7 @@
                     form.classList.remove('hidden');
                     if (btnVerify) {
                         btnVerify.innerHTML = `<i class="fa-solid fa-address-card mr-2"></i> ${btnText}`;
-                        btnVerify.className = `w-full mt-4 ${btnColor} text-white font-bold py-4 rounded-xl shadow-lg transition duration-200 text-xl`;
+                        btnVerify.className = `w-full mt-4 ${btnColor} font-bold py-4 rounded-xl shadow-lg transition duration-200 text-xl`;
                     }
                 } else {
                     form.classList.add('hidden');
@@ -742,8 +763,25 @@
                         noteEl.innerText = res.statusNote || "สถานะ: พร้อมถ่ายภาพ";
                         if(res.phase === "CHECKOUT") {
                             noteEl.parentElement.className = "mt-2 bg-blue-100 border border-blue-300 text-blue-800 px-3 py-2 rounded font-bold text-center";
+                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600');
+                            if(btnCamSub) {
+                                btnCamSub.className = "bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg";
+                                btnCamSub.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล';
+                            }
+                        } else if(res.phase === "LATE_CHECKIN") {
+                            noteEl.parentElement.className = "mt-2 bg-purple-100 border border-purple-300 text-purple-800 px-3 py-2 rounded font-bold text-center";
+                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600');
+                            if(btnCamSub) {
+                                btnCamSub.className = "bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg";
+                                btnCamSub.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยอมรับและลงทะเบียนมาสาย';
+                            }
                         } else {
                             noteEl.parentElement.className = "mt-2 bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-2 rounded font-bold text-center";
+                            const btnCamSub = document.querySelector('#preview-container button.bg-green-600, #preview-container button.bg-purple-600');
+                            if(btnCamSub) {
+                                btnCamSub.className = "bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg text-lg";
+                                btnCamSub.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ยืนยันส่งข้อมูล';
+                            }
                         }
                     }
                     
@@ -863,7 +901,7 @@
                         ctx.fillStyle = "white"; ctx.font = "30px 'Noto Sans Thai', sans-serif";
                         ctx.fillText(`พื้นที่: ม.${currentUser.moo} ต.${currentUser.tambon} อ.บ้านนาสาร จ.สุราษฎร์ธานี`, 30, h - 65);
 
-                        let phaseTxt = currentUser.phase === "CHECKOUT" ? "[ลงเวลากลับ]" : "[ลงเวลามา]";
+                        let phaseTxt = currentUser.phase === "CHECKOUT" ? "[ลงเวลากลับ]" : (currentUser.phase === "LATE_CHECKIN" ? "[ลงเวลามาสาย]" : "[ลงเวลามา]");
                         ctx.font = "bold 26px 'Noto Sans Thai', sans-serif";
                         ctx.fillText(`${phaseTxt} 📅 วันที่: ${new Date().toLocaleString('th-TH')}  📍 GPS: ${userLat.toFixed(5)}, ${userLng.toFixed(5)}`, 30, h - 20);
 
@@ -1420,6 +1458,8 @@
                 const t = tEl ? tEl.value : ''; const m = mEl ? mEl.value : ''; const p = pEl ? pEl.value : ''; const s = sEl ? sEl.value : '';
 
                 const standardStatuses = ['เข้าร่วม', 'เข้าร่วมสมบูรณ์', 'รอลงเวลากลับ', 'ไม่ลงเวลากลับ', 'ไม่เข้าร่วม'];
+                const stdJoined = ['เข้าร่วม', 'รอลงเวลากลับ', 'ไม่ลงเวลากลับ', 'เข้าร่วมสมบูรณ์'];
+                const lateJoined = ['เข้าร่วมสายเกินเวลาลงทะเบียน', 'รอลงเวลากลับ (สาย)', 'ไม่ลงเวลากลับ (สาย)', 'เข้าร่วมสมบูรณ์ (สาย)'];
 
                 const filtered = dashboardDataRaw.filter(d => { 
                     const matchSearch = (d.name.toLowerCase().includes(searchTerm) || (mode==='ADMIN' && d.cid.includes(searchTerm))); 
@@ -1428,17 +1468,17 @@
                     if (!s) {
                         matchStatus = true;
                     } else if (s === 'เข้าร่วม') {
-                        matchStatus = (d.status === 'เข้าร่วม' || d.status === 'รอลงเวลากลับ' || d.status === 'ไม่ลงเวลากลับ' || d.status === 'เข้าร่วมสมบูรณ์');
+                        matchStatus = stdJoined.includes(d.status);
                     } else if (s === 'รอลงเวลากลับ' || s === 'ไม่ลงเวลากลับ') {
-                        matchStatus = (d.status === s);
+                        matchStatus = (d.status === 'รอลงเวลากลับ' || d.status === 'รอลงเวลากลับ (สาย)' || d.status === 'ไม่ลงเวลากลับ' || d.status === 'ไม่ลงเวลากลับ (สาย)');
                     } else if (s === 'ไม่เข้าร่วม') {
                         matchStatus = (d.status === 'ไม่เข้าร่วม');
                     } else if (s === 'เข้าร่วมสมบูรณ์') {
-                        matchStatus = (d.status === 'เข้าร่วมสมบูรณ์');
+                        matchStatus = (d.status === 'เข้าร่วมสมบูรณ์' || d.status === 'เข้าร่วมสมบูรณ์ (สาย)');
                     } else if (s === 'เข้าร่วมสาย') {
-                        matchStatus = d.isLate && standardStatuses.includes(d.status) && d.status !== 'ไม่เข้าร่วม';
+                        matchStatus = lateJoined.includes(d.status);
                     } else if (s === 'ลา/ภารกิจ/อื่นๆ') {
-                        matchStatus = !standardStatuses.includes(d.status);
+                        matchStatus = (!stdJoined.includes(d.status) && !lateJoined.includes(d.status) && d.status !== 'ไม่เข้าร่วม');
                     }
                     
                     return matchSearch && (!t || d.tambon === t) && (!m || d.moo === m) && (!p || d.position === p) && matchStatus; 
@@ -1479,13 +1519,14 @@
 
                 const tbody = document.getElementById(`${prefix}-report-tbody`); if(tbody) tbody.innerHTML = ''; 
                 let joinCount = 0;
+                let lateCount = 0;
                 
                 filtered.forEach((d, index) => {
-                    const isJoinedAny = (d.status === 'เข้าร่วม' || d.status === 'รอลงเวลากลับ' || d.status === 'ไม่ลงเวลากลับ' || d.status === 'เข้าร่วมสมบูรณ์');
-                    if(isJoinedAny) joinCount++; 
+                    if(stdJoined.includes(d.status)) joinCount++; 
+                    if(lateJoined.includes(d.status)) lateCount++;
                     
                     let timeInStr = '-', timeOutStr = '-';
-                    if (isJoinedAny && d.timestampRaw) {
+                    if (d.timestampRaw) {
                         const parts = d.timestampRaw.split(' ');
                         if(parts.length > 1) timeInStr = parts[1]; 
                     }
@@ -1497,14 +1538,17 @@
                     let statClass = 'text-red-600';
                     let dispStatus = d.status;
                     
-                    if (d.isLate && standardStatuses.includes(d.status) && d.status !== 'ไม่เข้าร่วม') {
-                        statClass = 'text-purple-600';
-                        if(dispStatus === 'เข้าร่วม' || dispStatus === 'รอลงเวลากลับ' || dispStatus === 'ไม่ลงเวลากลับ') dispStatus = 'เข้าร่วมสาย';
-                    } else {
-                        if (d.status === 'เข้าร่วม' || d.status === 'เข้าร่วมสมบูรณ์') statClass = 'text-green-600';
-                        else if (d.status === 'รอลงเวลากลับ') statClass = 'text-yellow-600';
+                    if (lateJoined.includes(d.status)) {
+                        statClass = 'text-purple-600 font-bold';
+                        if(dispStatus === 'เข้าร่วมสายเกินเวลาลงทะเบียน' || dispStatus === 'รอลงเวลากลับ (สาย)' || dispStatus === 'ไม่ลงเวลากลับ (สาย)') dispStatus = 'เข้าร่วมสาย';
+                    } else if (stdJoined.includes(d.status)) {
+                        if (d.status === 'รอลงเวลากลับ') statClass = 'text-yellow-600';
                         else if (d.status === 'ไม่ลงเวลากลับ') statClass = 'text-orange-500';
-                        else if (!standardStatuses.includes(d.status)) statClass = 'text-pink-600 font-bold';
+                        else statClass = 'text-green-600';
+                    } else if (d.status === 'ไม่เข้าร่วม') {
+                        statClass = 'text-red-600';
+                    } else {
+                        statClass = 'text-pink-600 font-bold';
                     }
 
                     let rowHtml = `<td class="px-4 py-3">${d.name}</td><td class="px-4 py-3">${d.position}</td><td class="px-4 py-3 text-center">${d.tambon}</td><td class="px-4 py-3 text-center">${d.moo}</td>`;
@@ -1540,14 +1584,15 @@
                     if(tbody) tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">${rowHtml}</tr>`;
                 });
                 
-                const summaryEl = document.getElementById(`${prefix}-summary-text`); if(summaryEl) summaryEl.innerText = `กรองได้: ${filtered.length} | มา: ${joinCount} | ขาด: ${filtered.length - joinCount}`;
-                const total = filtered.length; const pct = total === 0 ? 0 : Math.round((joinCount / total) * 100);
+                const summaryEl = document.getElementById(`${prefix}-summary-text`); if(summaryEl) summaryEl.innerText = `กรองได้: ${filtered.length} | มาปกติ: ${joinCount} | มาสาย: ${lateCount} | ขาด/อื่นๆ: ${filtered.length - joinCount - lateCount}`;
+                const total = filtered.length; const pct = total === 0 ? 0 : Math.round(((joinCount + lateCount) / total) * 100);
                 
                 const elTotal = document.getElementById(`${prefix}-stat-total`); if(elTotal) elTotal.innerText = total;
                 const elJoined = document.getElementById(`${prefix}-stat-joined`); if(elJoined) elJoined.innerText = joinCount;
-                const elMissing = document.getElementById(`${prefix}-stat-missing`); if(elMissing) elMissing.innerText = total - joinCount;
+                const elLate = document.getElementById(`${prefix}-stat-late`); if(elLate) elLate.innerText = lateCount;
+                const elMissing = document.getElementById(`${prefix}-stat-missing`); if(elMissing) elMissing.innerText = total - joinCount - lateCount;
                 const elProgress = document.getElementById(`${prefix}-stat-progress`); if(elProgress) elProgress.style.width = pct + '%';
-                const elPercent = document.getElementById(`${prefix}-stat-percent`); if(elPercent) elPercent.innerText = pct + '% เข้าร่วมแล้ว';
+                const elPercent = document.getElementById(`${prefix}-stat-percent`); if(elPercent) elPercent.innerText = pct + '% เข้าร่วมแล้ว (รวมมาสาย)';
                 
             } catch (err) { console.error(err); }
         }
@@ -1557,7 +1602,7 @@
         function openEditModal(cid, name, currentStatus, requireCheckoutStr) {
             let optionsHtml = '';
             const stdUnjoined = ['ไม่เข้าร่วม'];
-            const stdMissed = ['ไม่ลงเวลากลับ'];
+            const stdMissed = ['ไม่ลงเวลากลับ', 'ไม่ลงเวลากลับ (สาย)'];
             
             if (stdUnjoined.includes(currentStatus)) {
                 optionsHtml = `
@@ -1572,7 +1617,7 @@
                     <option value="กลับก่อนเวลา (ติดภารกิจ)">กลับก่อนเวลา (ติดภารกิจ)</option>
                     <option value="ระบบขัดข้อง (ลงเวลากลับไม่ทัน)">ระบบขัดข้อง (ลงเวลากลับไม่ทัน)</option>
                     <option value="ลืมลงเวลา (มีหลักฐานยืนยัน)">ลืมลงเวลา (มีหลักฐานยืนยัน)</option>
-                    <option value="เข้าร่วมสมบูรณ์">แก้สถานะให้เป็น "เข้าร่วมสมบูรณ์"</option>
+                    <option value="${currentStatus === 'ไม่ลงเวลากลับ (สาย)' ? 'เข้าร่วมสมบูรณ์ (สาย)' : 'เข้าร่วมสมบูรณ์'}">แก้สถานะให้เป็น "เข้าร่วมสมบูรณ์"</option>
                     <option value="OTHER">อื่นๆ (โปรดระบุเหตุผล)</option>
                 `;
             } else {
